@@ -48,6 +48,7 @@ services/api/       Backend (FastAPI)
   app/interactions/ Drug interaction dataset and checker
   app/llm/          LLM prompts and extraction pipeline
   app/routing/      Rule-based care routing and emergency detection
+  app/records/      Symptom and medication models and data access
   app/routers/      FastAPI routers, one module per contract area
   app/config.py     Settings from the root .env
   app/db.py         SQLite engine, sessions, model Base
