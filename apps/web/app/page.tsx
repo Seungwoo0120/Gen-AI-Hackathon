@@ -1,10 +1,11 @@
-import { strings } from "@/lib/strings";
+import { getMessages } from "@/lib/i18n";
 
 export default function Home() {
+  const t = getMessages();
   return (
     <main>
-      <h1>{strings.appName}</h1>
-      <p>{strings.homeTagline}</p>
+      <h1>{t.appName}</h1>
+      <p>{t.homeTagline}</p>
     </main>
   );
 }
