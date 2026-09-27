@@ -80,6 +80,9 @@ docs/               Architecture, decisions, meeting notes
 ## Working rules for agents
 
 - Only modify files related to the current task. Do not refactor unrelated code.
+- Next.js in `apps/web/` is newer than most model training data and has breaking
+  changes. Before writing frontend code, read the relevant guide in
+  `apps/web/node_modules/next/dist/docs/` and heed deprecation notices.
 - Do NOT change `packages/shared/` (the API contract) unless the task explicitly
   says so. Contract changes must be announced to the team before merging.
 - Do not add new dependencies without stating why in the PR description.
