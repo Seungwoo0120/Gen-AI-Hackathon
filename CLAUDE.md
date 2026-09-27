@@ -58,6 +58,8 @@ docs/               Architecture, decisions, meeting notes
 - Install:
   - Frontend: `npm install`
   - Backend: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt`
+- Regenerate API types after changing `packages/shared/openapi.yaml`: `npm run gen:api`
+  (in `apps/web/`; CI fails if `lib/api/schema.ts` is out of date)
 - Run frontend: `npm run dev` (http://localhost:3000)
 - Run backend: `uvicorn app.main:app --reload` (http://localhost:8000)
 - Test:
