@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     data_source: Literal["mock", "live"] = "mock"
     cors_origins: list[str] = ["http://localhost:3000"]
     llm_api_key: str = ""
+    # Anthropic model for chat extraction; used only when data_source == "live".
+    llm_model: str = "claude-opus-5-5"
 
 
 @lru_cache
