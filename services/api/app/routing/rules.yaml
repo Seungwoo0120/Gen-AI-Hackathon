@@ -1,0 +1,389 @@
+# Care routing rules. Rule-based guidance on WHERE to go, never a diagnosis.
+#
+# Safety design:
+# - Matching errs towards urgency. A false alarm costs a phone call; a miss can cost a life.
+# - Negation is deliberately NOT handled: "no chest pain" still matches chest_pain.
+#   Users describing symptoms rarely mention ones they don't have, and handling
+#   negation well is error-prone.
+# - All languages are checked regardless of the request's `lang`, because
+#   users in Hong Kong often mix English and Chinese.
+# - Every rule stays `reviewed: false` until a clinician or team member has checked
+#   its level, patterns and source. Review status is tracked, not enforced in code.
+#
+# Patterns:
+# - en: lowercase phrases matched on word boundaries after normalizing the text
+#   (lowercase, curly quotes to straight, whitespace collapsed).
+# - zh: substrings in Traditional Chinese, including Cantonese colloquial forms.
+#   Chinese patterns need review by a native Cantonese speaker.
+# - No rule routes to `specialist` yet: we found no source to base one on.
+#   With no match the result is `gp`, and a GP handles specialist referrals.
+# - `examples` are sentences the rule must match; the tests check every one.
+
+version: "2026-09-27.1"
+
+sources:
+  nhs_999:
+    title: "NHS: When to call 999"
+    url: https://www.nhs.uk/nhs-services/urgent-and-emergency-care-services/when-to-call-999/
+  nhs_ae:
+    title: "NHS: When to go to A&E"
+    url: https://www.nhs.uk/nhs-services/urgent-and-emergency-care-services/when-to-go-to-ae/
+
+rules:
+  # --- call_999 -------------------------------------------------------------
+
+  - id: chest_pain
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - chest pain
+        - chest pains
+        - pain in my chest
+        - pain in the chest
+        - chest tightness
+        - tight chest
+        - chest feels tight
+        - pressure in my chest
+        - crushing chest
+        - heart attack
+      zh:
+        - 胸口痛
+        - 心口痛
+        - 胸痛
+        - 胸口翳
+        - 心口翳
+        - 胸口好緊
+        - 心臟病發
+    examples:
+      - "I have chest pain since this morning"
+      - "My chest feels tight and I am sweating"
+      - "阿媽話心口痛"
+
+  - id: severe_breathing_difficulty
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - can't breathe
+        - cant breathe
+        - cannot breathe
+        - can not breathe
+        - unable to breathe
+        - struggling to breathe
+        - gasping for air
+        - choking
+        - turning blue
+        - lips are blue
+      zh:
+        - 唞唔到氣
+        - 抖唔到氣
+        - 透唔到氣
+        - 呼吸困難
+        - 窒息
+        - 哽親
+        - 嘴唇發紫
+    examples:
+      - "He can't breathe properly"
+      - "my father is choking on food"
+      - "佢唞唔到氣"
+
+  - id: stroke_signs
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - stroke
+        - face drooping
+        - face is drooping
+        - drooping face
+        - slurred speech
+        - speech is slurred
+        - can't lift her arm
+        - can't lift his arm
+        - can't lift my arm
+        - one side of the body
+        - one side of her body
+        - one side of his body
+        - sudden weakness
+        - sudden numbness
+      zh:
+        - 中風
+        - 口歪
+        - 面歪
+        - 講嘢唔清楚
+        - 口齒不清
+        - 一邊手無力
+        - 一邊身無力
+        - 半邊身
+        - 突然無力
+    examples:
+      - "Her face is drooping and she has slurred speech"
+      - "I think grandpa is having a stroke"
+      - "婆婆突然口歪，講嘢唔清楚"
+
+  - id: unconscious
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - unconscious
+        - won't wake up
+        - wont wake up
+        - can't wake him
+        - can't wake her
+        - not responding
+        - unresponsive
+        - collapsed
+      zh:
+        - 昏迷
+        - 叫唔醒
+        - 冇反應
+        - 冇知覺
+        - 暈低
+        - 暈咗
+    examples:
+      - "My mother collapsed and is not responding"
+      - "爺爺叫唔醒"
+
+  - id: seizure
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - seizure
+        - convulsion
+        - convulsing
+        - having a fit
+      zh:
+        - 癲癇
+        - 發羊吊
+        - 全身抽搐
+    examples:
+      - "She is having a seizure"
+      - "個仔發羊吊"
+
+  - id: severe_bleeding
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - bleeding won't stop
+        - bleeding wont stop
+        - can't stop the bleeding
+        - heavy bleeding
+        - bleeding heavily
+        - losing a lot of blood
+      zh:
+        - 流血不止
+        - 止唔到血
+        - 大量出血
+        - 流好多血
+    examples:
+      - "The bleeding won't stop after 20 minutes"
+      - "伯伯止唔到血"
+
+  - id: severe_allergic_reaction
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - anaphylaxis
+        - anaphylactic
+        - throat is swelling
+        - throat swelling
+        - swollen throat
+        - tongue is swelling
+        - swollen tongue
+      zh:
+        - 喉嚨腫
+        - 條脷腫
+        - 嚴重過敏
+        - 過敏性休克
+    examples:
+      - "After eating peanuts her throat is swelling"
+      - "食完蝦條脷腫"
+
+  - id: self_harm
+    care_level: call_999
+    source: nhs_999
+    reviewed: false
+    patterns:
+      en:
+        - suicide
+        - suicidal
+        - kill myself
+        - end my life
+        - want to die
+        - overdose
+        - took too many pills
+      zh:
+        - 自殺
+        - 想死
+        - 唔想生存
+        - 食咗好多藥
+        - 服藥過量
+    examples:
+      - "I want to die"
+      - "He took too many pills"
+      - "我想死"
+
+  # --- ae -------------------------------------------------------------------
+
+  - id: severe_headache
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - worst headache
+        - sudden severe headache
+        - severe headache
+      zh:
+        - 劇烈頭痛
+        - 頭痛到爆
+        - 從來未試過咁痛嘅頭痛
+    examples:
+      - "It's the worst headache of my life"
+      - "突然劇烈頭痛"
+
+  - id: head_injury
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - head injury
+        - hit my head
+        - hit her head
+        - hit his head
+        - fell and hit
+      zh:
+        - 撞親個頭
+        - 撞到個頭
+        - 頭部受傷
+    examples:
+      - "Grandma fell and hit her head"
+      - "佢撞親個頭"
+
+  - id: broken_bone_or_deep_cut
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - broken bone
+        - broke my arm
+        - broke my leg
+        - broke my wrist
+        - broke my ankle
+        - broke my hip
+        - broke my finger
+        - broke my toe
+        - fracture
+        - deep cut
+        - dislocated
+      zh:
+        - 骨折
+        - 斷咗骨
+        - 好深嘅傷口
+        - 甩骹
+    examples:
+      - "I think I broke my wrist"
+      - "手臂有個好深嘅傷口"
+
+  - id: severe_burn
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - severe burn
+        - bad burn
+        - burned badly
+      zh:
+        - 嚴重燒傷
+        - 嚴重燙傷
+    examples:
+      - "It's a bad burn from boiling water"
+      - "佢嚴重燙傷"
+
+  - id: vomiting_or_passing_blood
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - vomiting blood
+        - throwing up blood
+        - blood in vomit
+        - coughing up blood
+        - black stool
+        - black poo
+      zh:
+        - 嘔血
+        - 咳血
+        - 黑色大便
+        - 屙黑色
+    examples:
+      - "He is vomiting blood"
+      - "今朝嘔血"
+
+  - id: severe_abdominal_pain
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - severe stomach pain
+        - severe abdominal pain
+        - severe tummy pain
+      zh:
+        - 肚痛得好犀利
+        - 劇烈肚痛
+        - 劇烈腹痛
+    examples:
+      - "I have severe stomach pain"
+      - "劇烈肚痛"
+
+  - id: shortness_of_breath
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    patterns:
+      en:
+        - short of breath
+        - shortness of breath
+        - breathless
+      zh:
+        - 氣促
+        - 氣喘
+    examples:
+      - "I get short of breath walking"
+      - "最近好氣促"
+
+# Age-based rules: combine an age limit with patterns.
+age_rules:
+  - id: infant_fever
+    care_level: ae
+    source: nhs_ae
+    reviewed: false
+    max_age_years: 0
+    patterns:
+      en:
+        - fever
+        - high temperature
+        - hot to touch
+      zh:
+        - 發燒
+        - 發熱
+    examples:
+      - "My baby has a fever"
+      - "BB發燒"
