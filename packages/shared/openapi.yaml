@@ -1,11 +1,22 @@
 openapi: 3.1.0
 info:
   title: HK Health Companion API
-  version: 0.1.0
+  version: 0.2.0
+  description: |
+    Contract between apps/web and services/api. Change it only in a dedicated PR
+    and announce the change to the team before merging (see CLAUDE.md).
+
+    Conventions:
+    - JSON field names are camelCase.
+    - Timestamps are ISO 8601 with timezone (e.g. 2026-09-27T20:00:00+08:00).
+    - The API never returns a diagnosis. Care routing returns a care level and
+      reason codes; the frontend turns codes into translated text.
+    - No auth yet: all data belongs to a single demo profile.
 paths:
   /health:
     get:
       operationId: getHealth
+      tags: [system]
       summary: Liveness check
       responses:
         "200":
@@ -14,7 +25,281 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
+
+  /ae/wait-times:
+    get:
+      operationId: listAeWaitTimes
+      tags: [care]
+      summary: Current A&E waiting times for all HA hospitals
+      description: |
+        Served from a cache refreshed at most every 15 minutes from Hospital
+        Authority open data. `stale` is true when the last refresh failed and
+        older data is being served.
+      responses:
+        "200":
+          description: Waiting times
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AeWaitTimesResponse"
+        "503":
+          description: No data available (source down and nothing cached)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /routing/assess:
+    post:
+      operationId: assessCareRouting
+      tags: [care]
+      summary: Rule-based guidance on where to seek care
+      description: |
+        Returns a care level, never a diagnosis. If any emergency rule matches,
+        careLevel is `call_999` and `emergency` is true.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoutingRequest"
+      responses:
+        "200":
+          description: Care routing result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoutingResult"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /interactions/check:
+    post:
+      operationId: checkInteractions
+      tags: [medications]
+      summary: Check a list of medications for interactions and duplicate ingredients
+      description: |
+        Warnings come only from the curated dataset. Names that are not in the
+        dataset are returned in `unrecognized` and are not checked.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InteractionCheckRequest"
+      responses:
+        "200":
+          description: Check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InteractionCheckResult"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /extract:
+    post:
+      operationId: extractFromMessage
+      tags: [logging]
+      summary: Turn a casual chat message into draft symptom and medication entries
+      description: |
+        Drafts are not saved. The user confirms or edits them, then the client
+        saves them with POST /symptoms and POST /medications. The message is
+        also checked for emergency signs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtractRequest"
+      responses:
+        "200":
+          description: Drafts and emergency check
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtractResult"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /symptoms:
+    get:
+      operationId: listSymptoms
+      tags: [logging]
+      summary: List symptom entries, newest first
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+      responses:
+        "200":
+          description: Symptom entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SymptomEntry"
+    post:
+      operationId: createSymptom
+      tags: [logging]
+      summary: Save a symptom entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SymptomInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SymptomEntry"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /symptoms/{symptomId}:
+    parameters:
+      - name: symptomId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      operationId: deleteSymptom
+      tags: [logging]
+      summary: Delete a symptom entry
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /medications:
+    get:
+      operationId: listMedications
+      tags: [medications]
+      summary: List the user's medications
+      responses:
+        "200":
+          description: Medications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medication"
+    post:
+      operationId: createMedication
+      tags: [medications]
+      summary: Add a medication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /medications/{medicationId}:
+    parameters:
+      - name: medicationId
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: updateMedication
+      tags: [medications]
+      summary: Replace a medication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteMedication
+      tags: [medications]
+      summary: Delete a medication
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /summary:
+    get:
+      operationId: getDoctorSummary
+      tags: [logging]
+      summary: Structured summary to show a doctor
+      description: |
+        Built from saved entries and the interaction check. Contains the user's
+        own records only, no interpretation or diagnosis.
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoctorSummary"
+
 components:
+  parameters:
+    From:
+      name: from
+      in: query
+      required: false
+      description: Include entries recorded at or after this time
+      schema:
+        type: string
+        format: date-time
+    To:
+      name: to
+      in: query
+      required: false
+      description: Include entries recorded before this time
+      schema:
+        type: string
+        format: date-time
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: Request body failed validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorResponse"
+
   schemas:
     HealthResponse:
       type: object
@@ -23,3 +308,365 @@ components:
         status:
           type: string
           const: ok
+
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+
+    ValidationErrorResponse:
+      description: FastAPI's default validation error shape
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            required: [loc, msg, type]
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+              msg:
+                type: string
+              type:
+                type: string
+
+    Language:
+      description: Content language. zh-Hant is Traditional Chinese.
+      type: string
+      enum: [en, zh-Hant]
+
+    LocalizedText:
+      description: Text from data sources, English always present
+      type: object
+      required: [en]
+      properties:
+        en:
+          type: string
+        zhHant:
+          type: string
+
+    # --- A&E ---
+
+    AeWaitTimesResponse:
+      type: object
+      required: [hospitals, sourceUpdatedAt, fetchedAt, stale]
+      properties:
+        hospitals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AeHospitalWaitTime"
+        sourceUpdatedAt:
+          description: Update time reported by Hospital Authority
+          type: string
+          format: date-time
+        fetchedAt:
+          description: When our server last fetched the data successfully
+          type: string
+          format: date-time
+        stale:
+          type: boolean
+
+    AeHospitalWaitTime:
+      type: object
+      required: [hospitalId, name, waitTimeText]
+      properties:
+        hospitalId:
+          description: Stable slug, e.g. "queen-mary"
+          type: string
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        waitTimeText:
+          description: Waiting time as published by HA, e.g. "Around 2 hours"
+          $ref: "#/components/schemas/LocalizedText"
+        waitMinutes:
+          description: Best numeric estimate in minutes for sorting; null if unknown
+          type: [integer, "null"]
+          minimum: 0
+        district:
+          type: [string, "null"]
+
+    # --- Care routing ---
+
+    CareLevel:
+      description: |
+        call_999: call an ambulance now. ae: go to A&E.
+        gp: see a general practitioner. specialist: ask a GP for a specialist referral.
+      type: string
+      enum: [call_999, ae, gp, specialist]
+
+    RoutingRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          description: Free-text description of how the user feels
+          type: string
+          minLength: 1
+          maxLength: 2000
+        ageYears:
+          type: [integer, "null"]
+          minimum: 0
+          maximum: 130
+        lang:
+          $ref: "#/components/schemas/Language"
+
+    RoutingResult:
+      type: object
+      required: [careLevel, emergency, reasonCodes, ruleSetVersion]
+      properties:
+        careLevel:
+          $ref: "#/components/schemas/CareLevel"
+        emergency:
+          description: True when an emergency rule matched; the client shows "Call 999" first
+          type: boolean
+        reasonCodes:
+          description: IDs of the rules that matched, e.g. "chest_pain". The frontend translates them.
+          type: array
+          items:
+            type: string
+        ruleSetVersion:
+          type: string
+
+    EmergencyCheck:
+      type: object
+      required: [emergency, reasonCodes]
+      properties:
+        emergency:
+          type: boolean
+        reasonCodes:
+          type: array
+          items:
+            type: string
+
+    # --- Medications and interactions ---
+
+    MedicationSchedule:
+      type: object
+      required: [times]
+      properties:
+        times:
+          description: Local times of day in HH:MM (24h), Hong Kong time
+          type: array
+          items:
+            type: string
+            pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        daysOfWeek:
+          description: 1 = Monday ... 7 = Sunday. Omitted or null means every day.
+          type: [array, "null"]
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+
+    MedicationInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          description: Brand or generic name as the user knows it
+          type: string
+          minLength: 1
+          maxLength: 200
+        dose:
+          description: Free text, e.g. "500 mg" or "1 tablet"
+          type: [string, "null"]
+          maxLength: 100
+        schedule:
+          oneOf:
+            - $ref: "#/components/schemas/MedicationSchedule"
+            - type: "null"
+        notes:
+          type: [string, "null"]
+          maxLength: 1000
+
+    Medication:
+      allOf:
+        - $ref: "#/components/schemas/MedicationInput"
+        - type: object
+          required: [id, createdAt]
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+
+    InteractionCheckRequest:
+      type: object
+      required: [medications]
+      properties:
+        medications:
+          description: Medication names to check against each other
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+
+    InteractionWarning:
+      type: object
+      required: [kind, severity, medications, summary, sources]
+      properties:
+        kind:
+          type: string
+          enum: [interaction, duplicate_ingredient]
+        severity:
+          type: string
+          enum: [major, moderate, minor]
+        medications:
+          description: The input names involved, as given in the request
+          type: array
+          items:
+            type: string
+        ingredient:
+          description: Shared active ingredient, for duplicate_ingredient warnings
+          type: [string, "null"]
+        summary:
+          description: Curated plain-language text from the dataset
+          $ref: "#/components/schemas/LocalizedText"
+        sources:
+          description: References backing this warning
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/SourceReference"
+
+    SourceReference:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        url:
+          type: [string, "null"]
+          format: uri
+
+    InteractionCheckResult:
+      type: object
+      required: [warnings, unrecognized, datasetVersion]
+      properties:
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/InteractionWarning"
+        unrecognized:
+          description: Input names not found in the dataset (not checked)
+          type: array
+          items:
+            type: string
+        datasetVersion:
+          type: string
+
+    # --- Symptom logging ---
+
+    SymptomInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          description: Short label in the user's words, e.g. "headache"
+          type: string
+          minLength: 1
+          maxLength: 200
+        details:
+          type: [string, "null"]
+          maxLength: 2000
+        severity:
+          description: Self-rated, 1 (mild) to 5 (severe)
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 5
+        startedAt:
+          type: [string, "null"]
+          format: date-time
+        recordedAt:
+          description: Defaults to the time of the request
+          type: [string, "null"]
+          format: date-time
+
+    SymptomEntry:
+      type: object
+      required: [id, name, recordedAt, source]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        details:
+          type: [string, "null"]
+        severity:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 5
+        startedAt:
+          type: [string, "null"]
+          format: date-time
+        recordedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum: [chat, manual]
+
+    ExtractRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        lang:
+          $ref: "#/components/schemas/Language"
+
+    ExtractResult:
+      type: object
+      required: [symptoms, medications, emergency]
+      properties:
+        symptoms:
+          type: array
+          items:
+            $ref: "#/components/schemas/SymptomInput"
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/MedicationInput"
+        emergency:
+          $ref: "#/components/schemas/EmergencyCheck"
+
+    # --- Doctor summary ---
+
+    DoctorSummary:
+      type: object
+      required: [generatedAt, symptoms, medications, interactionWarnings]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        from:
+          type: [string, "null"]
+          format: date-time
+        to:
+          type: [string, "null"]
+          format: date-time
+        symptoms:
+          type: array
+          items:
+            $ref: "#/components/schemas/SymptomEntry"
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        interactionWarnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/InteractionWarning"
