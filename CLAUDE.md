@@ -41,10 +41,18 @@ caregivers, domestic helpers, non-Cantonese speakers) to:
 
 ```
 apps/web/           Frontend (Next.js)
+  lib/api/          Typed API client; schema.ts is generated from the contract
+  lib/i18n/         All user-facing text (en, zh-Hant)
 services/api/       Backend (FastAPI)
   app/adapters/     External data sources (HA A&E, drug data, maps)
   app/interactions/ Drug interaction dataset and checker
   app/llm/          LLM prompts and extraction pipeline
+  app/routing/      Rule-based care routing and emergency detection
+  app/records/      Symptom and medication models and data access
+  app/routers/      FastAPI routers, one module per contract area
+  app/config.py     Settings from the root .env
+  app/db.py         SQLite engine, sessions, model Base
+  app/schemas.py    ApiModel base (snake_case in Python, camelCase in JSON)
   tests/
 packages/shared/    API contract (OpenAPI) and shared types
 docs/               Architecture, decisions, meeting notes
