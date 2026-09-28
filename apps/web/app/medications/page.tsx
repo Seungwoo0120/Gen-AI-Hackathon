@@ -6,5 +6,5 @@ export default async function MedicationsPage() {
   const language = await getLanguage();
   const t = getMessages(language);
 
-  return <PlaceholderPage comingSoon={t.comingSoon} title={t.pages.medications.title} />;
+  return <PlaceholderPage comingSoon={t.comingSoon} title={t.medications.title} />;
 }

@@ -13,7 +13,13 @@ the same time without merge conflicts.
 | E | LLM extraction pipeline | Claude | `services/api/app/llm/`, `app/routers/extract.py` |
 | F | [Symptom and medication records](track-f-records.md) | Codex | `services/api/app/records/`, `app/routers/symptoms.py`, `app/routers/medications.py` |
 
-`GET /summary` is left for the integration step, because it needs B and F.
+Stage 3 screen tracks (each edits only its own screen folder and its own i18n section):
+
+| Track | Brief | Owner | Folders it may change |
+|---|---|---|---|
+| G | [Medications screen](track-g-medications-screen.md) | Codex | `apps/web/app/medications/`, `components/medications/`, `lib/medications/` |
+| H | [Doctor summary screen](track-h-summary-screen.md) | Codex | `apps/web/app/summary/`, `components/summary/`, `lib/summary/` |
+| I | Voice-first chat and care routing screens | Claude | `apps/web/app/chat/`, `apps/web/app/care/` |
 
 ## How to start a track
 
@@ -47,5 +53,7 @@ Remove the worktree after merging: `git worktree remove ../hk-<topic>`.
 - Avoid new dependencies. If one is truly needed, state why in the PR description.
 - Tests must run offline. Use mocks and fixtures, never live network calls.
 - Never log symptom or medication text.
+- Frontend: put screen styles in a CSS module next to the screen; `globals.css` is
+  for shared tokens and layout only. Add text only to your screen's i18n section.
 - `tests/test_contract.py` must keep passing: every route you add must exist in
   `openapi.yaml` with the same method and path.

@@ -18,21 +18,18 @@ export const en = {
     english: "English",
     traditionalChinese: "繁體中文",
   },
-  pages: {
-    chat: {
-      title: "Chat",
-    },
-    medications: {
-      title: "Medications",
-    },
-    summary: {
-      title: "Summary",
-    },
+  // Screen: /medications (track G adds keys here only).
+  medications: {
+    title: "Medications",
   },
   emergency: {
     title: "Emergency",
     message: "If you need an ambulance now, call 999.",
     call: "Call 999",
+  },
+  // Screen: /summary (track H adds keys here only).
+  summary: {
+    title: "Summary",
   },
   care: {
     title: "Find care",
@@ -51,6 +48,15 @@ export const en = {
     gp: "See a GP (family doctor)",
     specialist: "Ask a GP about seeing a specialist",
   } satisfies Record<CareLevel, string>,
+  // Shared ReadAloudButton.
+  readAloud: {
+    start: "Read aloud",
+    stop: "Stop reading",
+  },
+  // Screen: /chat, voice-first conversation (Claude).
+  chat: {
+    title: "Chat",
+  },
 };
 
 export type Messages = typeof en;
