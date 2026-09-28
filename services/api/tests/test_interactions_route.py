@@ -45,3 +45,8 @@ def test_check_route_rejects_an_empty_medication_list() -> None:
     response = client.post("/interactions/check", json={"medications": []})
 
     assert response.status_code == 422
+
+
+def test_blank_medication_name_is_rejected() -> None:
+    response = client.post("/interactions/check", json={"medications": ["  ", "Panadol"]})
+    assert response.status_code == 422

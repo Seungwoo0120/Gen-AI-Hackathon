@@ -40,15 +40,20 @@ def check_interactions(names: list[str]) -> InteractionCheckResult:
     duplicate_index = {risk.ingredient: risk for risk in dataset.duplicate_risks}
 
     matched: list[MatchedMedication] = []
-    matched_ids: set[str] = set()
+    seen_names: set[str] = set()
     unrecognized: list[str] = []
     for input_name in names:
-        medication = name_index.get(_normalized(input_name))
+        # Only the exact same name is merged. Two different names for one medication
+        # (e.g. "Panadol" and "paracetamol") are a double dose and must be warned about.
+        normalized = _normalized(input_name)
+        if normalized in seen_names:
+            continue
+        seen_names.add(normalized)
+        medication = name_index.get(normalized)
         if medication is None:
             unrecognized.append(input_name)
-        elif medication.id not in matched_ids:
+        else:
             matched.append(MatchedMedication(input_name=input_name, medication=medication))
-            matched_ids.add(medication.id)
 
     warnings: list[InteractionWarning] = []
     ingredient_matches: dict[str, list[MatchedMedication]] = {}
@@ -57,9 +62,10 @@ def check_interactions(names: list[str]) -> InteractionCheckResult:
             ingredient_matches.setdefault(ingredient, []).append(item)
 
     for ingredient, items in ingredient_matches.items():
-        if len(items) < 2:
+        risk = duplicate_index.get(ingredient)
+        # No curated duplicate risk means no sourced warning to give.
+        if len(items) < 2 or risk is None:
             continue
-        risk = duplicate_index[ingredient]
         warnings.append(
             InteractionWarning(
                 kind="duplicate_ingredient",
@@ -74,6 +80,8 @@ def check_interactions(names: list[str]) -> InteractionCheckResult:
         )
 
     for left, right in combinations(matched, 2):
+        if left.medication.id == right.medication.id:
+            continue  # Same product twice is covered by the duplicate check above.
         for left_ingredient in left.medication.ingredients:
             for right_ingredient in right.medication.ingredients:
                 interaction = interaction_index.get(frozenset((left_ingredient, right_ingredient)))

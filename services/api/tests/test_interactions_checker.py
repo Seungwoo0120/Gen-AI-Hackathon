@@ -53,3 +53,30 @@ def test_warning_order_is_severity_then_names() -> None:
         ("major", ["Ibuprofen", "Warfarin"]),
         ("moderate", ["Losartan", "Ibuprofen"]),
     ]
+
+
+def test_two_names_for_the_same_medication_warn_about_double_dose() -> None:
+    for names in (["Panadol", "paracetamol"], ["Panadol", "必理痛"]):
+        result = check_interactions(names)
+
+        assert len(result.warnings) == 1, names
+        warning = result.warnings[0]
+        assert warning.kind == "duplicate_ingredient"
+        assert warning.severity == "major"
+        assert warning.ingredient == "paracetamol"
+        assert warning.medications == names
+
+
+def test_same_combination_product_under_two_names_warns_only_on_curated_ingredients() -> None:
+    result = check_interactions(["Panadol Cold & Flu", "必理痛傷風感冒丸"])
+
+    assert [(w.kind, w.ingredient) for w in result.warnings] == [
+        ("duplicate_ingredient", "paracetamol")
+    ]
+
+
+def test_exact_same_name_twice_is_merged_without_warning() -> None:
+    result = check_interactions(["Panadol", " panadol "])
+
+    assert result.warnings == []
+    assert result.unrecognized == []

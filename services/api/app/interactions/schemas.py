@@ -4,7 +4,8 @@ from pydantic import AnyUrl, Field, StringConstraints
 
 from app.schemas import ApiModel
 
-MedicationName = Annotated[str, StringConstraints(min_length=1)]
+# At least one non-space character; the name is kept exactly as the user typed it.
+MedicationName = Annotated[str, StringConstraints(min_length=1, pattern=r"\S")]
 
 
 class InteractionCheckRequest(ApiModel):
