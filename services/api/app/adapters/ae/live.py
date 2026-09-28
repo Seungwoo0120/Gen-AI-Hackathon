@@ -24,11 +24,40 @@ ENGLISH_URL = "https://www.ha.org.hk/opendata/aed/aedwtdata2-en.json"
 TRADITIONAL_CHINESE_URL = "https://www.ha.org.hk/opendata/aed/aedwtdata2-tc.json"
 HTTP_TIMEOUT_SECONDS = 10
 CACHE_TTL = timedelta(minutes=15)
+# After a failed refresh, serve the cache without refetching for this long, so an
+# HA outage doesn't make every request wait for network timeouts.
+RETRY_AFTER_FAILURE = timedelta(minutes=1)
+# Older data is not shown at all: hours-old waiting times would mislead.
+MAX_STALE_AGE = timedelta(hours=2)
 HONG_KONG_TIMEZONE = timezone(timedelta(hours=8))
 
 JsonPayload = dict[str, object]
 FetchJson = Callable[[str], JsonPayload]
 Clock = Callable[[], datetime]
+
+# HA's two files share no hospital ID and could be ordered differently, so they are
+# joined by name. Pairs taken from the live HA files on 2026-09-27. A hospital
+# missing here still shows, with English text only.
+HOSPITAL_NAMES_ZH_HANT = {
+    "Alice Ho Miu Ling Nethersole Hospital": "雅麗氏何妙齡那打素醫院",
+    "Caritas Medical Centre": "明愛醫院",
+    "Kwong Wah Hospital": "廣華醫院",
+    "North District Hospital": "北區醫院",
+    "North Lantau Hospital": "北大嶼山醫院",
+    "Pamela Youde Nethersole Eastern Hospital": "東區尤德夫人那打素醫院",
+    "Pok Oi Hospital": "博愛醫院",
+    "Prince of Wales Hospital": "威爾斯親王醫院",
+    "Princess Margaret Hospital": "瑪嘉烈醫院",
+    "Queen Elizabeth Hospital": "伊利沙伯醫院",
+    "Queen Mary Hospital": "瑪麗醫院",
+    "Ruttonjee Hospital": "律敦治醫院",
+    "St John Hospital": "長洲醫院",
+    "Tin Shui Wai Hospital": "天水圍醫院",
+    "Tseung Kwan O Hospital": "將軍澳醫院",
+    "Tuen Mun Hospital": "屯門醫院",
+    "United Christian Hospital": "基督教聯合醫院",
+    "Yan Chai Hospital": "仁濟醫院",
+}
 
 _WAIT_TEXT_PATTERN = re.compile(
     r"(?:(?:around|over|within|less\s+than)\s+)?"
@@ -93,22 +122,22 @@ def normalize_payloads(
     *,
     fetched_at: datetime,
 ) -> AeWaitTimesResponse:
-    english_records = _records(english_payload)
-    chinese_records = _records(chinese_payload)
+    chinese_by_name = {record.get("hospName"): record for record in _records(chinese_payload)}
     hospitals: list[AeHospitalWaitTime] = []
 
-    # HA publishes the language files in the same hospital order and exposes no shared ID.
-    for english, chinese in zip(english_records, chinese_records, strict=True):
+    for english in _records(english_payload):
         english_name = _text(english, "hospName")
-        # Since October 2025, t45p95 is HA's estimate for when a majority of triage
-        # category IV/V patients receive consultation. Older payloads used topWait.
+        # t45p95: time within which 95% of non-urgent (triage IV/V) patients are seen,
+        # a near worst case. Older payloads used topWait.
         wait_field = "t45p95" if "t45p95" in english else "topWait"
         english_wait = _text(english, wait_field)
-        chinese_wait = _text(chinese, wait_field)
+        chinese_name = HOSPITAL_NAMES_ZH_HANT.get(english_name)
+        chinese = chinese_by_name.get(chinese_name) if chinese_name else None
+        chinese_wait = _text(chinese, wait_field) if chinese else None
         hospitals.append(
             AeHospitalWaitTime(
                 hospital_id=_hospital_slug(english_name),
-                name=LocalizedText(en=english_name, zh_hant=_text(chinese, "hospName")),
+                name=LocalizedText(en=english_name, zh_hant=chinese_name if chinese else None),
                 wait_time_text=LocalizedText(en=english_wait, zh_hant=chinese_wait),
                 wait_minutes=parse_wait_minutes(english_wait),
                 district=None,
@@ -140,6 +169,7 @@ class LiveAeWaitTimesSource:
         self._fetch_json = fetch_json
         self._clock = clock
         self._cache: AeWaitTimesResponse | None = None
+        self._last_failure_at: datetime | None = None
         self._refresh_lock = asyncio.Lock()
 
     def _cache_is_fresh(self, now: datetime) -> bool:
@@ -147,6 +177,16 @@ class LiveAeWaitTimesSource:
             return False
         age = now - self._cache.fetched_at
         return timedelta(0) <= age < CACHE_TTL
+
+    def _failed_recently(self, now: datetime) -> bool:
+        last = self._last_failure_at
+        return last is not None and now - last < RETRY_AFTER_FAILURE
+
+    def _stale_or_unavailable(self, now: datetime) -> AeWaitTimesResponse:
+        cached = self._cache
+        if cached is None or now - cached.fetched_at > MAX_STALE_AGE:
+            raise AeSourceUnavailable("A&E waiting time data is unavailable")
+        return cached.model_copy(update={"stale": True}, deep=True)
 
     def _fetch_payloads(self) -> tuple[JsonPayload, JsonPayload]:
         return self._fetch_json(ENGLISH_URL), self._fetch_json(TRADITIONAL_CHINESE_URL)
@@ -162,6 +202,8 @@ class LiveAeWaitTimesSource:
             cached = self._cache
             if cached is not None and self._cache_is_fresh(now):
                 return cached.model_copy(deep=True)
+            if self._failed_recently(now):
+                return self._stale_or_unavailable(now)
 
             try:
                 english_payload, chinese_payload = await run_in_threadpool(self._fetch_payloads)
@@ -171,9 +213,12 @@ class LiveAeWaitTimesSource:
                     fetched_at=self._clock(),
                 )
             except Exception as error:
-                if self._cache is not None:
-                    return self._cache.model_copy(update={"stale": True}, deep=True)
-                raise AeSourceUnavailable("A&E waiting time data is unavailable") from error
+                self._last_failure_at = self._clock()
+                try:
+                    return self._stale_or_unavailable(self._last_failure_at)
+                except AeSourceUnavailable as unavailable:
+                    raise unavailable from error
 
             self._cache = refreshed
+            self._last_failure_at = None
             return refreshed.model_copy(deep=True)
