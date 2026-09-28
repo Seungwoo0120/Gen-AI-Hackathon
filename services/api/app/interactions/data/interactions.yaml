@@ -1,0 +1,286 @@
+version: "2026.09.1"
+
+medications:
+  - id: paracetamol
+    names: [paracetamol, acetaminophen, Panadol, 必理痛, 撲熱息痛]
+    ingredients: [paracetamol]
+    sources:
+      - title: "NHS: Paracetamol for adults"
+        url: https://www.nhs.uk/medicines/paracetamol-for-adults/
+    reviewed: false
+
+  - id: panadol-cold-flu
+    names: [Panadol Cold & Flu, Panadol Cold and Flu, 必理痛傷風感冒丸]
+    ingredients: [paracetamol, phenylephrine hydrochloride, caffeine, ascorbic acid, terpin hydrate]
+    sources:
+      - title: "Hong Kong Drug Office: Panadol Cold & Flu (New Formulation) Tab (HK-50505)"
+        url: https://www.drugoffice.gov.hk/eps/drug/productDetail2/tc/consumer/153457
+    reviewed: false
+
+  - id: ibuprofen
+    names: [ibuprofen, Brufen, Nurofen, 布洛芬]
+    ingredients: [ibuprofen]
+    sources:
+      - title: "NHS: Ibuprofen for adults"
+        url: https://www.nhs.uk/medicines/ibuprofen-for-adults/
+    reviewed: false
+
+  - id: aspirin
+    names: [aspirin, Disprin, 亞士匹靈, 阿士匹靈]
+    ingredients: [aspirin]
+    sources:
+      - title: "NHS: Aspirin"
+        url: https://www.nhs.uk/medicines/aspirin/
+    reviewed: false
+
+  - id: cetirizine
+    names: [cetirizine, Zyrtec, 西替利嗪]
+    ingredients: [cetirizine]
+    sources:
+      - title: "NHS: Cetirizine"
+        url: https://www.nhs.uk/medicines/cetirizine/
+    reviewed: false
+
+  - id: chlorphenamine
+    names: [chlorphenamine, chlorpheniramine, Piriton, 氯苯那敏]
+    ingredients: [chlorphenamine]
+    sources:
+      - title: "NHS: Chlorphenamine (Piriton)"
+        url: https://www.nhs.uk/medicines/chlorphenamine-including-piriton/
+    reviewed: false
+
+  - id: loratadine
+    names: [loratadine, Clarityne, 氯雷他定]
+    ingredients: [loratadine]
+    sources:
+      - title: "NHS: Loratadine"
+        url: https://www.nhs.uk/medicines/loratadine/
+    reviewed: false
+
+  - id: metformin
+    names: [metformin, Glucophage, 二甲雙胍]
+    ingredients: [metformin]
+    sources:
+      - title: "NHS: Metformin"
+        url: https://www.nhs.uk/medicines/metformin/
+    reviewed: false
+
+  - id: gliclazide
+    names: [gliclazide, Diamicron, 格列齊特]
+    ingredients: [gliclazide]
+    sources:
+      - title: "NHS: Gliclazide"
+        url: https://www.nhs.uk/medicines/gliclazide/
+    reviewed: false
+
+  - id: amlodipine
+    names: [amlodipine, Norvasc, 氨氯地平]
+    ingredients: [amlodipine]
+    sources:
+      - title: "NHS: Amlodipine"
+        url: https://www.nhs.uk/medicines/amlodipine/
+    reviewed: false
+
+  - id: lisinopril
+    names: [lisinopril, Zestril, 賴諾普利]
+    ingredients: [lisinopril]
+    sources:
+      - title: "NHS: Lisinopril"
+        url: https://www.nhs.uk/medicines/lisinopril/
+    reviewed: false
+
+  - id: losartan
+    names: [losartan, Cozaar, 氯沙坦]
+    ingredients: [losartan]
+    sources:
+      - title: "NHS: Losartan"
+        url: https://www.nhs.uk/medicines/losartan/
+    reviewed: false
+
+  - id: simvastatin
+    names: [simvastatin, Zocor, 辛伐他汀]
+    ingredients: [simvastatin]
+    sources:
+      - title: "NHS: Simvastatin"
+        url: https://www.nhs.uk/medicines/simvastatin/
+    reviewed: false
+
+  - id: atorvastatin
+    names: [atorvastatin, Lipitor, 阿托伐他汀]
+    ingredients: [atorvastatin]
+    sources:
+      - title: "NHS: Atorvastatin"
+        url: https://www.nhs.uk/medicines/atorvastatin/
+    reviewed: false
+
+  - id: warfarin
+    names: [warfarin, Marevan, 華法林]
+    ingredients: [warfarin]
+    sources:
+      - title: "NHS: Warfarin"
+        url: https://www.nhs.uk/medicines/warfarin/
+    reviewed: false
+
+  - id: clopidogrel
+    names: [clopidogrel, Plavix, 氯吡格雷]
+    ingredients: [clopidogrel]
+    sources:
+      - title: "NHS: Clopidogrel"
+        url: https://www.nhs.uk/medicines/clopidogrel/
+    reviewed: false
+
+  - id: omeprazole
+    names: [omeprazole, Losec, 奧美拉唑]
+    ingredients: [omeprazole]
+    sources:
+      - title: "NHS: Omeprazole"
+        url: https://www.nhs.uk/medicines/omeprazole/
+    reviewed: false
+
+  - id: salbutamol
+    names: [salbutamol, albuterol, Ventolin, 沙丁胺醇]
+    ingredients: [salbutamol]
+    sources:
+      - title: "NHS: Salbutamol inhalers"
+        url: https://www.nhs.uk/medicines/salbutamol-inhaler/
+    reviewed: false
+
+  - id: levothyroxine
+    names: [levothyroxine, Eltroxin, 左甲狀腺素]
+    ingredients: [levothyroxine]
+    sources:
+      - title: "NHS: Levothyroxine"
+        url: https://www.nhs.uk/medicines/levothyroxine/
+    reviewed: false
+
+  - id: sertraline
+    names: [sertraline, Zoloft, 舍曲林]
+    ingredients: [sertraline]
+    sources:
+      - title: "NHS: Sertraline"
+        url: https://www.nhs.uk/medicines/sertraline/
+    reviewed: false
+
+  - id: clarithromycin
+    names: [clarithromycin, Klacid, 克拉霉素]
+    ingredients: [clarithromycin]
+    sources:
+      - title: "NHS: Clarithromycin"
+        url: https://www.nhs.uk/medicines/clarithromycin/
+    reviewed: false
+
+  - id: amoxicillin
+    names: [amoxicillin, Amoxil, 阿莫西林]
+    ingredients: [amoxicillin]
+    sources:
+      - title: "NHS: Amoxicillin"
+        url: https://www.nhs.uk/medicines/amoxicillin/
+    reviewed: false
+
+  - id: sildenafil
+    names: [sildenafil, Viagra, 威而鋼, 西地那非]
+    ingredients: [sildenafil]
+    sources:
+      - title: "NHS: Sildenafil (Viagra)"
+        url: https://www.nhs.uk/medicines/sildenafil-viagra/
+    reviewed: false
+
+  - id: glyceryl-trinitrate
+    names: [glyceryl trinitrate, nitroglycerin, GTN, Glytrin, 硝酸甘油]
+    ingredients: [glyceryl trinitrate]
+    sources:
+      - title: "NHS: Glyceryl trinitrate (GTN)"
+        url: https://www.nhs.uk/medicines/glyceryl-trinitrate-gtn/
+    reviewed: false
+
+interactions:
+  - id: warfarin-aspirin
+    ingredients: [warfarin, aspirin]
+    severity: major
+    summary:
+      en: "Taking warfarin with aspirin can increase bleeding risk. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "DailyMed: Warfarin Sodium Tablets, USP — NSAIDs including aspirin"
+        url: https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=36a919ce-7a21-40c0-9af5-2299bf2b1f97
+    reviewed: false
+
+  - id: warfarin-ibuprofen
+    ingredients: [warfarin, ibuprofen]
+    severity: major
+    summary:
+      en: "Taking warfarin with ibuprofen can increase the risk of serious bleeding. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "FDA label: CALDOLOR (ibuprofen) — drugs that interfere with hemostasis"
+        url: https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022348s024lbl.pdf
+    reviewed: false
+
+  - id: aspirin-ibuprofen
+    ingredients: [aspirin, ibuprofen]
+    severity: moderate
+    summary:
+      en: "Ibuprofen can reduce low-dose aspirin's antiplatelet effect and can increase gastrointestinal side effects. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "FDA: Information about taking ibuprofen and aspirin together"
+        url: https://www.fda.gov/drugs/safe-use-aspirin/information-about-taking-ibuprofen-and-aspirin-together
+    reviewed: false
+
+  - id: amlodipine-simvastatin
+    ingredients: [amlodipine, simvastatin]
+    severity: moderate
+    summary:
+      en: "Amlodipine increases exposure to simvastatin, so a simvastatin dose limit may apply. Check with a doctor or pharmacist about this combination."
+    sources:
+      - title: "DailyMed: Amlodipine besylate — impact on simvastatin"
+        url: https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c411a30f-51be-490d-9bc3-d5cbe1357c3c
+    reviewed: false
+
+  - id: simvastatin-clarithromycin
+    ingredients: [simvastatin, clarithromycin]
+    severity: major
+    summary:
+      en: "Clarithromycin can greatly raise simvastatin levels and the risk of serious muscle injury. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "DailyMed: Clarithromycin — HMG-CoA reductase inhibitors"
+        url: https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2b5aef5f-d96e-55e0-e054-00144ff8d46c
+    reviewed: false
+
+  - id: ibuprofen-lisinopril
+    ingredients: [ibuprofen, lisinopril]
+    severity: moderate
+    summary:
+      en: "Ibuprofen can reduce the blood-pressure-lowering effect of lisinopril and may worsen kidney function in some people. Check with a doctor or pharmacist about this combination."
+    sources:
+      - title: "FDA label: CALDOLOR (ibuprofen) — ACE inhibitors and renal function"
+        url: https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022348s024lbl.pdf
+    reviewed: false
+
+  - id: ibuprofen-losartan
+    ingredients: [ibuprofen, losartan]
+    severity: moderate
+    summary:
+      en: "Ibuprofen can reduce the blood-pressure-lowering effect of losartan and may worsen kidney function in some people. Check with a doctor or pharmacist about this combination."
+    sources:
+      - title: "DailyMed: Losartan potassium — non-steroidal anti-inflammatory agents"
+        url: https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?setid=4c6fca7d-9e36-4455-9e37-7ed2d64f64b2&type=pdf
+    reviewed: false
+
+  - id: sildenafil-glyceryl-trinitrate
+    ingredients: [sildenafil, glyceryl trinitrate]
+    severity: major
+    summary:
+      en: "Sildenafil with nitrate medicines can cause an unsafe fall in blood pressure. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "DailyMed: Sildenafil citrate — nitrates contraindication"
+        url: https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=98a9897b-0cbc-4ea6-9ac2-4dd719a2ede0
+    reviewed: false
+
+duplicateRisks:
+  - id: duplicate-paracetamol
+    ingredient: paracetamol
+    severity: major
+    summary:
+      en: "These products both contain paracetamol, which can lead to an accidental overdose and serious liver damage. Check with a doctor or pharmacist before using them together."
+    sources:
+      - title: "FDA: Acetaminophen — avoid more than one acetaminophen-containing product"
+        url: https://www.fda.gov/drugs/safe-use-over-counter-pain-relievers-and-fever-reducers/acetaminophen
+    reviewed: false
