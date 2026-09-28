@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: HK Health Companion API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     Contract between apps/web and services/api. Change it only in a dedicated PR
     and announce the change to the team before merging (see CLAUDE.md).
@@ -592,6 +592,11 @@ components:
           description: Defaults to the time of the request
           type: [string, "null"]
           format: date-time
+        source:
+          description: How the entry was created. Use `chat` when saving drafts from /extract.
+          type: string
+          enum: [chat, manual]
+          default: manual
 
     SymptomEntry:
       type: object

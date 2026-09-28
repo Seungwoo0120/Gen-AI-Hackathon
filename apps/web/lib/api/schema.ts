@@ -341,6 +341,12 @@ export interface components {
              * @description Defaults to the time of the request
              */
             recordedAt?: string | null;
+            /**
+             * @description How the entry was created. Use `chat` when saving drafts from /extract.
+             * @default manual
+             * @enum {string}
+             */
+            source: "chat" | "manual";
         };
         SymptomEntry: {
             id: string;
