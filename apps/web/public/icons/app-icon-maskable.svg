@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="HK Health Companion">
+  <rect width="512" height="512" fill="#075985"/>
+  <circle cx="256" cy="256" r="184" fill="#fff"/>
+  <path d="M224 136h64v88h88v64h-88v88h-64v-88h-88v-64h88v-88Z" fill="#075985"/>
+</svg>

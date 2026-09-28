@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { getMessages } from ".";
+import { getMessages, resolveLanguage } from ".";
 import { en } from "./en";
+import { getLocalizedText } from "./localized";
 import { zhHant } from "./zh-Hant";
 
 type Tree = { [key: string]: string | Tree };
@@ -29,5 +30,25 @@ describe("i18n", () => {
 
   it("returns Traditional Chinese for zh-Hant", () => {
     expect(getMessages("zh-Hant").careLevel.call_999).toContain("999");
+  });
+
+  it("accepts supported language cookie values", () => {
+    expect(resolveLanguage("en")).toBe("en");
+    expect(resolveLanguage("zh-Hant")).toBe("zh-Hant");
+  });
+
+  it("falls back to English for missing or unknown cookie values", () => {
+    expect(resolveLanguage(undefined)).toBe("en");
+    expect(resolveLanguage("fr")).toBe("en");
+  });
+
+  it("uses English when localized source text is unavailable", () => {
+    const text = { en: "Around 2 hours" };
+    expect(getLocalizedText(text, "zh-Hant")).toBe(text.en);
+  });
+
+  it("uses Traditional Chinese source text when available", () => {
+    const text = { en: "Around 2 hours", zhHant: "約兩小時" };
+    expect(getLocalizedText(text, "zh-Hant")).toBe(text.zhHant);
   });
 });

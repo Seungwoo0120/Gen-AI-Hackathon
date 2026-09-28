@@ -1,11 +1,5 @@
-import { getMessages } from "@/lib/i18n";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  const t = getMessages();
-  return (
-    <main>
-      <h1>{t.appName}</h1>
-      <p>{t.homeTagline}</p>
-    </main>
-  );
+  redirect("/chat");
 }

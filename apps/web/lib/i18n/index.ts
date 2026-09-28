@@ -14,4 +14,8 @@ export function getMessages(lang: Language = defaultLanguage): Messages {
   return messages[lang];
 }
 
+export function resolveLanguage(value: string | undefined): Language {
+  return value === "zh-Hant" || value === "en" ? value : defaultLanguage;
+}
+
 export type { Messages };
