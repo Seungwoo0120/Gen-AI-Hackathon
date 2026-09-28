@@ -125,3 +125,105 @@ async def test_live_source_raises_when_refresh_fails_without_cache() -> None:
 
     with pytest.raises(AeSourceUnavailable):
         await source.get_wait_times()
+
+
+# --- joining languages by name ---
+
+
+def _normalize(english: dict[str, object], chinese: dict[str, object]):
+    fetched_at = datetime(2026, 9, 27, 23, 5, tzinfo=HONG_KONG_TIMEZONE)
+    return normalize_payloads(english, chinese, fetched_at=fetched_at)
+
+
+def _by_id(response, hospital_id: str):
+    return next(h for h in response.hospitals if h.hospital_id == hospital_id)
+
+
+def test_languages_are_joined_by_name_not_order() -> None:
+    chinese = _fixture("wait-times-tc.json")
+    chinese["waitTime"] = list(reversed(chinese["waitTime"]))
+
+    response = _normalize(_fixture("wait-times-en.json"), chinese)
+
+    queen_mary = _by_id(response, "queen-mary-hospital")
+    assert queen_mary.name.zh_hant == "瑪麗醫院"
+    assert queen_mary.wait_time_text.zh_hant == "6 小時"
+    alice_ho = _by_id(response, "alice-ho-miu-ling-nethersole-hospital")
+    assert alice_ho.name.zh_hant == "雅麗氏何妙齡那打素醫院"
+
+
+def test_every_fixture_hospital_has_a_chinese_name() -> None:
+    response = _normalize(_fixture("wait-times-en.json"), _fixture("wait-times-tc.json"))
+    assert all(h.name.zh_hant and h.wait_time_text.zh_hant for h in response.hospitals)
+
+
+def test_unknown_or_missing_hospital_keeps_english_only() -> None:
+    english = _fixture("wait-times-en.json")
+    english["waitTime"][0] = {**english["waitTime"][0], "hospName": "New Test Hospital"}
+    chinese = _fixture("wait-times-tc.json")
+    chinese["waitTime"] = [r for r in chinese["waitTime"] if r["hospName"] != "瑪麗醫院"]
+
+    response = _normalize(english, chinese)
+
+    assert len(response.hospitals) == 18
+    new = _by_id(response, "new-test-hospital")
+    assert new.name.zh_hant is None and new.wait_time_text.zh_hant is None
+    queen_mary = _by_id(response, "queen-mary-hospital")
+    assert queen_mary.name.zh_hant is None and queen_mary.wait_time_text.en == "6 hours"
+
+
+# --- outage behaviour ---
+
+
+@pytest.mark.anyio
+async def test_failure_backs_off_before_refetching() -> None:
+    clock = _FakeClock()
+    fetcher = _FakeFetcher()
+    source = LiveAeWaitTimesSource(fetch_json=fetcher, clock=clock)
+    await source.get_wait_times()
+    clock.advance(timedelta(minutes=15))
+    fetcher.fail = True
+    await source.get_wait_times()
+    calls_after_failure = fetcher.calls
+
+    clock.advance(timedelta(seconds=59))
+    during_backoff = await source.get_wait_times()
+    assert fetcher.calls == calls_after_failure
+    assert during_backoff.stale is True
+
+    clock.advance(timedelta(seconds=1))
+    fetcher.fail = False
+    recovered = await source.get_wait_times()
+    assert fetcher.calls > calls_after_failure
+    assert recovered.stale is False
+
+
+@pytest.mark.anyio
+async def test_failure_without_cache_backs_off_too() -> None:
+    clock = _FakeClock()
+    fetcher = _FakeFetcher()
+    fetcher.fail = True
+    source = LiveAeWaitTimesSource(fetch_json=fetcher, clock=clock)
+    with pytest.raises(AeSourceUnavailable):
+        await source.get_wait_times()
+    calls = fetcher.calls
+
+    with pytest.raises(AeSourceUnavailable):
+        await source.get_wait_times()
+    assert fetcher.calls == calls
+
+
+@pytest.mark.anyio
+async def test_data_older_than_two_hours_is_not_served() -> None:
+    clock = _FakeClock()
+    fetcher = _FakeFetcher()
+    source = LiveAeWaitTimesSource(fetch_json=fetcher, clock=clock)
+    await source.get_wait_times()
+    fetcher.fail = True
+
+    clock.advance(timedelta(hours=2))
+    assert (await source.get_wait_times()).stale is True
+
+    clock.advance(timedelta(minutes=1, seconds=1))
+    with pytest.raises(AeSourceUnavailable):
+        await source.get_wait_times()
