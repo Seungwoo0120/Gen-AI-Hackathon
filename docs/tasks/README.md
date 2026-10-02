@@ -17,9 +17,14 @@ Stage 3 screen tracks (each edits only its own screen folder and its own i18n se
 
 | Track | Brief | Owner | Folders it may change |
 |---|---|---|---|
-| G | [Medications screen](track-g-medications-screen.md) | Codex | `apps/web/app/medications/`, `components/medications/`, `lib/medications/` |
-| H | [Doctor summary screen](track-h-summary-screen.md) | Codex | `apps/web/app/summary/`, `components/summary/`, `lib/summary/` |
-| I | Voice-first chat and care routing screens | Claude | `apps/web/app/chat/`, `apps/web/app/care/` |
+| G | [Medications screen](track-g-medications-screen.md) | Seungwoo | `apps/web/app/medications/`, `components/medications/`, `lib/medications/` |
+| H | [Doctor summary screen](track-h-summary-screen.md) | Dowon | `apps/web/app/summary/`, `components/summary/`, `lib/summary/` |
+| I | Voice-first chat screen and `/chat` API | Dowon (with Claude) | `apps/web/app/chat/`, chat API |
+| J | [Care routing screen](track-j-care-routing-screen.md) | Jinuk | `apps/web/app/care/`, `components/care/`, `lib/care/` |
+| K | [Medication reminders](track-k-medication-reminders.md) (after G) | Seungwoo | `apps/web/app/medications/`, `components/medications/`, `lib/medications/` |
+
+Owners are people (see [`docs/team.md`](../team.md)); each may hand the brief to an
+agent (Codex or Claude), but reviews and merges stay with people.
 
 ## How to start a track
 
