@@ -30,7 +30,7 @@ def post_symptom(
     request: SymptomInput,
     session: Annotated[Session, Depends(get_session)],
 ) -> SymptomResponse:
-    return _response(create_symptom(session, request, source="manual"))
+    return _response(create_symptom(session, request, source=request.source))
 
 
 @router.delete(

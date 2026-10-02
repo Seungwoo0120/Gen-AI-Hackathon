@@ -1,30 +1,5 @@
-from collections.abc import Iterator
-
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session, sessionmaker
-
-from app.db import Base, get_session, make_engine
-from app.main import app
-
-
-@pytest.fixture
-def client() -> Iterator[TestClient]:
-    test_engine = make_engine("sqlite://")
-    Base.metadata.create_all(test_engine)
-    test_session = sessionmaker(bind=test_engine, autoflush=False, expire_on_commit=False)
-
-    def override_get_session() -> Iterator[Session]:
-        with test_session() as session:
-            yield session
-
-    app.dependency_overrides[get_session] = override_get_session
-    try:
-        with TestClient(app) as test_client:
-            yield test_client
-    finally:
-        app.dependency_overrides.pop(get_session, None)
-        test_engine.dispose()
 
 
 def test_symptom_create_list_delete_round_trip_uses_contract_shape(client: TestClient) -> None:

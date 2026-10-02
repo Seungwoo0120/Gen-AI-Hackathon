@@ -23,6 +23,7 @@ class SymptomInput(ApiModel):
     severity: int | None = Field(default=None, ge=1, le=5)
     started_at: datetime | None = None
     recorded_at: datetime | None = None
+    source: SymptomSource = "manual"
 
 
 class SymptomResponse(SymptomInput):
