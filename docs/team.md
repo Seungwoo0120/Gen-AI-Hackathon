@@ -1,22 +1,29 @@
 # Team and ownership
 
-Three people, one feature each, end to end: screens, API wiring, data review and
-the demo scenario for that feature. Ownership means you decide and you review;
-anyone may help.
+Four people: three developers who each own one feature end to end (screens, API
+wiring, data review and the demo scenario for that feature), and one owner of the
+report, pitch and business case. Ownership means you decide and you review; anyone
+may help.
 
 | Feature | Owner | Owns |
 |---|---|---|
 | ① Log by conversation → doctor summary | Dowon | Voice-first chat (`/chat` screen, chat API), `/extract`, `/summary` and the summary screen (track H) |
 | ② Medications: reminders and interaction warnings | Seungwoo | Medications screen (track G), reminders (track K), interaction dataset review and expansion |
 | ③ Care routing and A&E waiting times | Jinuk | Care routing screen (track J), routing rules review, A&E data |
+| Report, pitch and business model | Siddhant | Written report, presentation, business model, the final demo script |
 
 Shared owner roles:
 
 - **API contract (`packages/shared/openapi.yaml`): Dowon.** Ask Dowon for contract
   changes; only one person edits the contract, to avoid conflicting versions.
   Announce every contract change in the team chat before merging.
-- **Demo and pitch: everyone.** Each owner prepares one demo scenario for their
-  feature (see "Demo flow" below).
+- **Demo and pitch: Siddhant leads.** Each developer prepares and presents the demo
+  scenario for their feature (see "Demo flow" below). Siddhant combines them into
+  one story.
+- **Progress for the report.** When a PR merges, its author adds one line to
+  `docs/progress.md` (what now works, in plain English), and notes any new
+  challenge. Siddhant takes the report's progress and challenges sections from
+  there, so nobody has to reconstruct them later.
 
 ## Working together
 
