@@ -114,6 +114,8 @@ docs/               Architecture, decisions, meeting notes
 - TypeScript: strict mode, no `any` unless justified in a comment.
 - Python: type hints everywhere, format with the project formatter.
 - Name things clearly; comments explain why, not what.
+- Frontend styles: CSS modules next to each screen; `globals.css` only for shared
+  tokens and layout.
 - User-facing text goes through one place so we can add translations later
   (English, Traditional Chinese, and possibly Tagalog/Indonesian).
 

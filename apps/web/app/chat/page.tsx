@@ -6,5 +6,5 @@ export default async function ChatPage() {
   const language = await getLanguage();
   const t = getMessages(language);
 
-  return <PlaceholderPage comingSoon={t.comingSoon} showDisclaimer title={t.pages.chat.title} />;
+  return <PlaceholderPage comingSoon={t.comingSoon} showDisclaimer title={t.chat.title} />;
 }

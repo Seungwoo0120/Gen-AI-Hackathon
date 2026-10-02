@@ -18,21 +18,18 @@ export const zhHant: Messages = {
     english: "English",
     traditionalChinese: "繁體中文",
   },
-  pages: {
-    chat: {
-      title: "對話",
-    },
-    medications: {
-      title: "藥物",
-    },
-    summary: {
-      title: "摘要",
-    },
+  // Screen: /medications (track G adds keys here only).
+  medications: {
+    title: "藥物",
   },
   emergency: {
     title: "緊急情況",
     message: "如現時需要救護車，請致電 999。",
     call: "致電 999",
+  },
+  // Screen: /summary (track H adds keys here only).
+  summary: {
+    title: "摘要",
   },
   care: {
     title: "尋找醫療服務",
@@ -50,5 +47,14 @@ export const zhHant: Messages = {
     ae: "前往急症室",
     gp: "看普通科醫生（家庭醫生）",
     specialist: "向普通科醫生查詢轉介專科",
+  },
+  // Shared ReadAloudButton.
+  readAloud: {
+    start: "讀出內容",
+    stop: "停止朗讀",
+  },
+  // Screen: /chat, voice-first conversation (Claude).
+  chat: {
+    title: "對話",
   },
 };
