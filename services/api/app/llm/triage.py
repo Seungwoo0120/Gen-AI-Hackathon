@@ -263,10 +263,14 @@ def get_triage_agent(
     ae_source: Annotated[AeWaitTimesSource, Depends(get_ae_source)],
     travel_time: Annotated[TravelTimeFn, Depends(get_travel_time)],
 ) -> TriageAgent:
-    if settings.data_source == "live":
+    # The agent's tool loop is written for the Anthropic API. With another provider the
+    # deterministic agent does the same calculation on the same live data.
+    if settings.data_source == "live" and settings.llm_provider == "anthropic":
         if settings.llm_api_key:
             client = _anthropic_client(settings.llm_api_key)
-            return ClaudeTriageAgent(client, settings.llm_model, ae_source, travel_time)
+            return ClaudeTriageAgent(
+                client, settings.resolved_llm_model, ae_source, travel_time
+            )
         logger.warning("DATA_SOURCE=live but LLM_API_KEY is empty; using the mock triage agent")
     return MockTriageAgent(ae_source, travel_time)
 

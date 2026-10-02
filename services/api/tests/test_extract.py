@@ -7,15 +7,15 @@ from fastapi.testclient import TestClient
 from app.config import Settings
 from app.llm import get_extractor
 from app.llm.base import Drafts, ExtractionFailed
-from app.llm.claude import (
+from app.llm.claude import ClaudeExtractor
+from app.llm.mock import MockExtractor
+from app.llm.prompting import (
     SYSTEM_PROMPT,
-    ClaudeExtractor,
-    _LlmExtraction,
-    _LlmMedication,
-    _LlmSymptom,
+    LlmExtraction,
+    LlmMedication,
+    LlmSymptom,
     to_drafts,
 )
-from app.llm.mock import MockExtractor
 from app.main import app
 
 client = TestClient(app)
@@ -26,11 +26,11 @@ def run(coro):
 
 
 def symptom(name="headache", details=None, severity=None, started_at=None):
-    return _LlmSymptom(name=name, details=details, severity=severity, started_at=started_at)
+    return LlmSymptom(name=name, details=details, severity=severity, started_at=started_at)
 
 
 def medication(name="Panadol", dose=None, times=(), notes=None):
-    return _LlmMedication(name=name, dose=dose, times=list(times), notes=notes)
+    return LlmMedication(name=name, dose=dose, times=list(times), notes=notes)
 
 
 class FakeMessages:
@@ -48,28 +48,28 @@ class FakeMessages:
 
 
 def test_medication_not_in_message_is_dropped() -> None:
-    raw = _LlmExtraction(symptoms=[], medications=[medication("Warfarin")])
+    raw = LlmExtraction(symptoms=[], medications=[medication("Warfarin")])
     assert to_drafts(raw, "I took Panadol").medications == []
 
 
 def test_medication_match_ignores_case_and_spaces() -> None:
-    raw = _LlmExtraction(symptoms=[], medications=[medication("pana dol")])
+    raw = LlmExtraction(symptoms=[], medications=[medication("pana dol")])
     assert [m.name for m in to_drafts(raw, "took PANADOL twice").medications] == ["pana dol"]
 
 
 def test_invalid_times_drop_schedule_but_keep_medication() -> None:
-    raw = _LlmExtraction(symptoms=[], medications=[medication(times=["8am"])])
+    raw = LlmExtraction(symptoms=[], medications=[medication(times=["8am"])])
     drafts = to_drafts(raw, "Panadol at 8am")
     assert drafts.medications[0].schedule is None
 
 
 def test_valid_times_become_schedule() -> None:
-    raw = _LlmExtraction(symptoms=[], medications=[medication(times=["08:00", "20:00"])])
+    raw = LlmExtraction(symptoms=[], medications=[medication(times=["08:00", "20:00"])])
     assert to_drafts(raw, "Panadol").medications[0].schedule.times == ["08:00", "20:00"]
 
 
 def test_out_of_range_severity_is_discarded_not_the_symptom() -> None:
-    drafts = to_drafts(_LlmExtraction(symptoms=[symptom(severity=9)], medications=[]), "x")
+    drafts = to_drafts(LlmExtraction(symptoms=[symptom(severity=9)], medications=[]), "x")
     assert drafts.symptoms[0].name == "headache"
     assert drafts.symptoms[0].severity is None
 
@@ -84,12 +84,12 @@ def test_out_of_range_severity_is_discarded_not_the_symptom() -> None:
     ],
 )
 def test_started_at_must_be_iso_with_timezone(value, expected) -> None:
-    drafts = to_drafts(_LlmExtraction(symptoms=[symptom(started_at=value)], medications=[]), "x")
+    drafts = to_drafts(LlmExtraction(symptoms=[symptom(started_at=value)], medications=[]), "x")
     assert drafts.symptoms[0].started_at == expected
 
 
 def test_empty_symptom_name_is_dropped() -> None:
-    drafts = to_drafts(_LlmExtraction(symptoms=[symptom(name="  ")], medications=[]), "x")
+    drafts = to_drafts(LlmExtraction(symptoms=[symptom(name="  ")], medications=[]), "x")
     assert drafts.symptoms == []
 
 
@@ -97,7 +97,7 @@ def test_empty_symptom_name_is_dropped() -> None:
 
 
 def test_claude_extractor_sends_prompt_and_returns_drafts() -> None:
-    messages = FakeMessages(_LlmExtraction(symptoms=[symptom()], medications=[medication()]))
+    messages = FakeMessages(LlmExtraction(symptoms=[symptom()], medications=[medication()]))
     extractor = ClaudeExtractor(SimpleNamespace(messages=messages), model="test-model")
 
     drafts = run(extractor.extract("Headache, took Panadol", "en"))
@@ -107,7 +107,7 @@ def test_claude_extractor_sends_prompt_and_returns_drafts() -> None:
     call = messages.calls[0]
     assert call["model"] == "test-model"
     assert call["system"] == SYSTEM_PROMPT
-    assert call["output_format"] is _LlmExtraction
+    assert call["output_format"] is LlmExtraction
     assert "<message>\nHeadache, took Panadol\n</message>" in call["messages"][0]["content"]
 
 
