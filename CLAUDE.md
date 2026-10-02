@@ -77,6 +77,10 @@ docs/               Architecture, decisions, meeting notes
   - Frontend: `npm run lint && npm run typecheck`
   - Backend: `ruff check . && ruff format --check .` (auto-fix: `ruff check --fix . && ruff format .`)
 
+## Team
+
+Who owns what, the review rotation and the demo flow: see `docs/team.md`.
+
 ## Git workflow
 
 - Never commit or push to `main` directly. `main` is protected.
