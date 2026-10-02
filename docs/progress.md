@@ -5,6 +5,7 @@ Add challenges as they come up. Newest first.
 
 ## Done
 
+- 2026-10-03 · Voice tested on a real Android phone (Samsung Galaxy): Cantonese speech recognition was accurate on all test sentences, and read-aloud uses a real Cantonese voice. Fixed three Android-specific issues found in the test (voice names, first-tap voice loading, recognition stopping after each pause).
 - 2026-10-02 · Doctor summary API: one call returns a person's symptoms in a date range, their medications and any interaction warnings (#11). Screens prepared for parallel work, plus a read-aloud button (#12) and a phone voice test page (#13).
 - 2026-09-28 · Mobile app shell: bottom navigation, English/Traditional Chinese switch, an emergency "Call 999" banner, and a live A&E waiting-times screen (#10).
 - 2026-09-28 · Symptom and medication records are saved and listed (#9).
@@ -19,6 +20,7 @@ Add challenges as they come up. Newest first.
 
 - Safety: the app must never diagnose or invent facts. The AI only organises what the user said; warnings and routing come from curated, sourced rules. Code review caught real safety bugs (e.g. the same drug under two names gave no warning), and they were fixed.
 - Clinical validation: rules and drug data cite NHS/FDA/HK Drug Office sources but are not yet checked by a clinician or pharmacist.
+- Voice on iPhone is untested (no team iPhone); Android works. Text input stays available as a fallback.
 - Cantonese: no native speakers on the team. Chinese text needs a native review (`docs/cantonese-review.md`), and voice recognition on iPhone is still being tested.
 - Older users: typing is a barrier, so we are moving to voice-first input and read-aloud.
 - Real-world data: HA's English and Chinese files share no hospital ID, and the service can go down.

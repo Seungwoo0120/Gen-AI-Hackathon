@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Language } from "@/lib/api/types";
 import type { Messages } from "@/lib/i18n";
-import { pickVoice, speechLang } from "@/lib/speech/voices";
+import { loadVoices, pickVoice, speechLang } from "@/lib/speech/voices";
 import styles from "./ReadAloudButton.module.css";
 
 type Props = {
@@ -34,16 +34,23 @@ export function ReadAloudButton({ text, language, messages }: Props) {
       setSpeaking(false);
       return;
     }
-    const lang = speechLang(language);
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.voice = pickVoice(synth.getVoices(), lang) ?? null;
-    utterance.rate = 0.9; // A little slower for older listeners.
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-    synth.cancel();
-    synth.speak(utterance);
     setSpeaking(true);
+    const lang = speechLang(language);
+    const speakWith = (voices: SpeechSynthesisVoice[]) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.voice = pickVoice(voices, lang) ?? null;
+      utterance.rate = 0.9; // A little slower for older listeners.
+      utterance.onend = () => setSpeaking(false);
+      utterance.onerror = () => setSpeaking(false);
+      synth.cancel();
+      synth.speak(utterance);
+    };
+    // Speak in the same tap when voices are ready: some browsers only allow speech
+    // that starts directly from a user gesture.
+    const ready = synth.getVoices();
+    if (ready.length > 0) speakWith(ready);
+    else void loadVoices(synth).then(speakWith);
   }
 
   return (

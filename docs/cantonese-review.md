@@ -8,6 +8,7 @@ before the demo. Add items as you write new Chinese text; tick them when reviewe
 - [ ] `services/api/app/routing/rules.yaml`: every `zh` emergency and A&E pattern. Are these what people actually say? What common phrasings are missing?
 - [ ] `services/api/app/interactions/data/interactions.yaml`: Chinese drug and brand names (some look like Mainland terms, e.g. 氨氯地平, 辛伐他汀)
 - [ ] `services/api/app/llm/mock.py`: Chinese symptom keywords
+- [ ] If the reviewer has an iPhone: run `/voice-test` in Safari (speak the sample sentences, tap 🔊 Cantonese, send the page text). Nobody on the team has an iPhone.
 - [ ] `/voice-test` sample sentences (`apps/web/app/voice-test/VoiceTest.tsx`)
 
 Tips for the reviewer session (about 1 hour): open the files side by side with the

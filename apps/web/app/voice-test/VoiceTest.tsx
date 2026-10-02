@@ -3,7 +3,7 @@
 // Temporary spike: English-only text inline on purpose (not a user-facing screen).
 import { useRef, useState, useSyncExternalStore } from "react";
 import { getRecognitionConstructor, type Recognition } from "@/lib/speech/recognition";
-import { pickVoice } from "@/lib/speech/voices";
+import { loadVoices, pickVoice } from "@/lib/speech/voices";
 import styles from "./VoiceTest.module.css";
 
 const LANGS = [
@@ -26,6 +26,8 @@ function readEnv(): Env {
   return cachedEnv;
 }
 const noSubscribe = () => () => {};
+// Errors where restarting can't help; anything else (e.g. no-speech) restarts.
+const FATAL_ERRORS = new Set(["not-allowed", "service-not-allowed", "audio-capture", "language-not-supported"]);
 
 type Log = { at: string; text: string };
 
@@ -39,13 +41,19 @@ export function VoiceTest() {
   const [voices, setVoices] = useState<string[]>([]);
   const recognitionRef = useRef<Recognition | null>(null);
   const startedAt = useRef(0);
+  // True from tap-to-start until tap-to-stop. Mobile browsers end recognition after a
+  // second or two of silence, so we restart until the user stops it.
+  const wantListening = useRef(false);
+  const sessions = useRef(0);
 
   function note(text: string) {
-    setLog((entries) => [{ at: new Date().toLocaleTimeString(), text }, ...entries].slice(0, 30));
+    setLog((entries) => [{ at: new Date().toLocaleTimeString(), text }, ...entries].slice(0, 200));
   }
 
-  function toggleListening() {
+  // `startTime` is the click's event.timeStamp, on the same clock as performance.now().
+  function toggleListening(startTime: number) {
     if (listening) {
+      wantListening.current = false;
       recognitionRef.current?.stop();
       return;
     }
@@ -65,27 +73,51 @@ export function VoiceTest() {
         const text = result[0].transcript;
         if (result.isFinal) {
           const seconds = ((performance.now() - startedAt.current) / 1000).toFixed(1);
-          setFinals((items) => [...items, text]);
-          note(`final after ${seconds}s, confidence ${result[0].confidence.toFixed(2)}`);
+          // Tag each line so runs in different languages can be told apart.
+          setFinals((items) => [...items, `[${recognition.lang}] ${text}`]);
+          note(`[${recognition.lang}] final after ${seconds}s, confidence ${result[0].confidence.toFixed(2)}`);
         } else {
           pending += text;
         }
       }
       setInterim(pending);
     };
-    recognition.onerror = (event) => note(`error: ${event.error}`);
+    recognition.onerror = (event) => {
+      note(`error: ${event.error}`);
+      if (FATAL_ERRORS.has(event.error)) wantListening.current = false;
+    };
     recognition.onend = () => {
-      setListening(false);
       setInterim("");
+      if (wantListening.current && sessions.current < 100) {
+        note(`browser ended session ${sessions.current}; restarting`);
+        // A short pause avoids a tight loop if the browser ends immediately.
+        window.setTimeout(() => startSession(recognition), 250);
+        return;
+      }
+      wantListening.current = false;
+      setListening(false);
       note("stopped");
     };
+    wantListening.current = true;
+    sessions.current = 0;
+    startedAt.current = startTime;
+    recognitionRef.current = recognition;
+    setListening(true);
+    note(`listening in ${lang}`);
+    startSession(recognition);
+  }
+
+  function startSession(recognition: Recognition) {
+    if (!wantListening.current) {
+      setListening(false);
+      return;
+    }
     try {
+      sessions.current += 1;
       recognition.start();
-      recognitionRef.current = recognition;
-      startedAt.current = performance.now();
-      setListening(true);
-      note(`listening in ${lang}`);
     } catch (error) {
+      wantListening.current = false;
+      setListening(false);
       note(`start failed: ${String(error)}`);
     }
   }
@@ -97,9 +129,12 @@ export function VoiceTest() {
     note(`${all.length} voices total, ${relevant.length} zh/yue/en`);
   }
 
-  function speak(tag: "zh-HK" | "en-GB") {
+  async function speak(tag: "zh-HK" | "en-GB") {
     const synth = window.speechSynthesis;
-    const voice = pickVoice(synth.getVoices(), tag);
+    const before = synth.getVoices().length;
+    const voices = await loadVoices(synth);
+    if (before === 0) note(`voices were not loaded yet; waited, now ${voices.length}`);
+    const voice = pickVoice(voices, tag);
     const utterance = new SpeechSynthesisUtterance(SAMPLE[tag]);
     utterance.lang = tag;
     utterance.voice = voice ?? null;
@@ -109,6 +144,7 @@ export function VoiceTest() {
     synth.speak(utterance);
     note(`speaking ${tag} with ${voice ? `${voice.name} (${voice.lang})` : "NO matching voice"}`);
   }
+
 
   const ok = (value: boolean) => (value ? "✅" : "❌");
 
@@ -142,7 +178,7 @@ export function VoiceTest() {
         <button
           aria-pressed={listening}
           className={listening ? `${styles.mic} ${styles.listening}` : styles.mic}
-          onClick={toggleListening}
+          onClick={(event) => toggleListening(event.timeStamp)}
           type="button"
         >
           {listening ? "■ Stop" : "🎤 Tap and speak"}
@@ -160,6 +196,7 @@ export function VoiceTest() {
 
       <section className={styles.card}>
         <h2>3. Text → speech</h2>
+        <p className={styles.small}>Voice picker v3 (waits for voices)</p>
         <div className={styles.row}>
           <button className={styles.button} onClick={() => speak("zh-HK")} type="button">
             🔊 Cantonese
@@ -180,6 +217,16 @@ export function VoiceTest() {
 
       <section className={styles.card}>
         <h2>Log</h2>
+        <button
+          className={styles.button}
+          onClick={() => {
+            setFinals([]);
+            setLog([]);
+          }}
+          type="button"
+        >
+          Clear results and log
+        </button>
         <ul className={styles.small}>
           {log.map((entry, i) => (
             <li key={i}>
