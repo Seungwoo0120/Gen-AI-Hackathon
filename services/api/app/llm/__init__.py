@@ -22,9 +22,19 @@ def _claude_extractor(api_key: str, model: str) -> Extractor:
     return ClaudeExtractor(AsyncAnthropic(api_key=api_key, timeout=20, max_retries=1), model)
 
 
+@lru_cache
+def _openai_extractor(api_key: str, model: str) -> Extractor:
+    from openai import AsyncOpenAI
+
+    from app.llm.gpt import OpenAIExtractor
+
+    return OpenAIExtractor(AsyncOpenAI(api_key=api_key, timeout=20, max_retries=1), model)
+
+
 def get_extractor(settings: Annotated[Settings, Depends(get_settings)]) -> Extractor:
     if settings.data_source == "live":
         if settings.llm_api_key:
-            return _claude_extractor(settings.llm_api_key, settings.llm_model)
+            build = _openai_extractor if settings.llm_provider == "openai" else _claude_extractor
+            return build(settings.llm_api_key, settings.resolved_llm_model)
         logger.warning("DATA_SOURCE=live but LLM_API_KEY is empty; using the mock extractor")
     return MockExtractor()
