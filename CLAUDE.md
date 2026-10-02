@@ -46,6 +46,7 @@ apps/web/           Frontend (Next.js)
 services/api/       Backend (FastAPI)
   app/adapters/     External data sources (HA A&E, drug data, maps)
   app/interactions/ Drug interaction dataset and checker
+  app/chat/         Rule-based follow-up questions for the voice-first chat
   app/llm/          LLM prompts and extraction pipeline
   app/routing/      Rule-based care routing and emergency detection
   app/records/      Symptom and medication models and data access

@@ -5,6 +5,7 @@ Add challenges as they come up. Newest first.
 
 ## Done
 
+- 2026-10-03 · Conversation API: the app asks up to four short follow-up questions (what, since when, how bad, which medicine) until the record is complete. The questions are fixed and translated, never written by the AI, and every answer is checked for emergencies.
 - 2026-10-03 · Voice tested on a real Android phone (Samsung Galaxy): Cantonese speech recognition was accurate on all test sentences, and read-aloud uses a real Cantonese voice. Fixed three Android-specific issues found in the test (voice names, first-tap voice loading, recognition stopping after each pause).
 - 2026-10-02 · Doctor summary API: one call returns a person's symptoms in a date range, their medications and any interaction warnings (#11). Screens prepared for parallel work, plus a read-aloud button (#12) and a phone voice test page (#13).
 - 2026-09-28 · Mobile app shell: bottom navigation, English/Traditional Chinese switch, an emergency "Call 999" banner, and a live A&E waiting-times screen (#10).

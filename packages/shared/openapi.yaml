@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: HK Health Companion API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     Contract between apps/web and services/api. Change it only in a dedicated PR
     and announce the change to the team before merging (see CLAUDE.md).
@@ -119,6 +119,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExtractResult"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /chat:
+    post:
+      operationId: chat
+      tags: [logging]
+      summary: One turn of the voice-first logging conversation
+      description: |
+        Stateless: the client sends every turn so far and gets back the drafts
+        extracted from the whole conversation, the emergency check over all
+        answers, and the next follow-up question.
+
+        Follow-up questions are fixed codes chosen by rules (never text written
+        by the LLM); the frontend translates them. Each is asked at most once.
+        `nextQuestion: null` means the conversation is done: show the drafts for
+        the user to confirm, or "Call 999" first if `emergency.emergency` is true.
+
+        Drafts are not saved. Save confirmed drafts with POST /symptoms
+        (`source: chat`) and POST /medications.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Next question, drafts and emergency check
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResult"
         "422":
           $ref: "#/components/responses/ValidationError"
 
@@ -593,7 +626,7 @@ components:
           type: [string, "null"]
           format: date-time
         source:
-          description: How the entry was created. Use `chat` when saving drafts from /extract.
+          description: How the entry was created. Use `chat` when saving drafts from /chat or /extract.
           type: string
           enum: [chat, manual]
           default: manual
@@ -638,6 +671,64 @@ components:
       required: [symptoms, medications, emergency]
       properties:
         symptoms:
+          type: array
+          items:
+            $ref: "#/components/schemas/SymptomInput"
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/MedicationInput"
+        emergency:
+          $ref: "#/components/schemas/EmergencyCheck"
+
+    ChatQuestion:
+      description: |
+        Follow-up question codes, asked in this order when the answer is still missing:
+        ask_symptoms (nothing recorded yet), ask_onset (when it started),
+        ask_severity (1 to 5), ask_medications (any medicine taken).
+      type: string
+      enum: [ask_symptoms, ask_onset, ask_severity, ask_medications]
+
+    ChatTurn:
+      type: object
+      required: [answer]
+      properties:
+        question:
+          description: The question the app asked just before this answer; null for the opening turn
+          oneOf:
+            - $ref: "#/components/schemas/ChatQuestion"
+            - type: "null"
+        answer:
+          description: What the user said or typed
+          type: string
+          minLength: 1
+          maxLength: 1000
+
+    ChatRequest:
+      type: object
+      required: [turns]
+      properties:
+        turns:
+          description: Every turn so far, oldest first. Answers may total at most 4000 characters.
+          type: array
+          minItems: 1
+          maxItems: 8
+          items:
+            $ref: "#/components/schemas/ChatTurn"
+        lang:
+          $ref: "#/components/schemas/Language"
+
+    ChatResult:
+      type: object
+      required: [nextQuestion, symptoms, medications, emergency]
+      properties:
+        nextQuestion:
+          description: The next question to ask, or null when the conversation is done
+          oneOf:
+            - $ref: "#/components/schemas/ChatQuestion"
+            - type: "null"
+        symptoms:
+          description: Drafts from the whole conversation (replace earlier drafts)
           type: array
           items:
             $ref: "#/components/schemas/SymptomInput"
