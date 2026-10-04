@@ -72,6 +72,7 @@ class ChatResult(ApiModel):
     symptoms: list[SymptomDraft]
     medications: list[MedicationDraft]
     emergency: EmergencyCheck
+    extraction_failed: bool
 
 
 class TriageRequest(ApiModel):

@@ -11,6 +11,7 @@ const result: ChatResult = {
   ],
   medications: [{ name: "Panadol", dose: "2 tablets", schedule: { times: ["08:00"] } }],
   emergency: { emergency: false, reasonCodes: [] },
+  extractionFailed: false,
 };
 
 describe("drafts", () => {

@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { ReadAloudButton } from "@/components/ReadAloudButton";
 import type { ChatQuestion, ChatResult, ChatTurn, Language } from "@/lib/api/types";
 import {
-  canAnswerMore,
   type EditableMedication,
   type EditableSymptom,
   toEditable,
   toSave,
 } from "@/lib/chat/drafts";
+import { MAX_ANSWER, nextStep } from "@/lib/chat/flow";
 import type { Messages } from "@/lib/i18n";
 import { speak } from "@/lib/speech/speak";
 import { useSpeechInput } from "@/lib/speech/useSpeechInput";
@@ -25,10 +25,6 @@ type Props = {
 };
 
 type Phase = "asking" | "sending" | "error" | "review" | "emergency" | "saved";
-
-// Mirrors the contract limits on POST /chat.
-const MAX_ANSWER = 1000;
-const MAX_TOTAL = 4000;
 
 export function ChatPanel({ language, messages: t, readAloud, emergency }: Props) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -71,25 +67,26 @@ export function ChatPanel({ language, messages: t, readAloud, emergency }: Props
     setTurns(nextTurns);
     setPhase("sending");
     const result = await sendChat(nextTurns, language);
-    if (!result) {
-      setPhase("error");
-      return;
+    if (result) setLatest(result);
+    const step = nextStep(result, nextTurns);
+    switch (step.kind) {
+      case "emergency":
+        window.speechSynthesis?.cancel();
+        setPhase("emergency");
+        return;
+      case "failed":
+        setPhase("error");
+        return;
+      case "ask":
+        setQuestion(step.question);
+        setPhase("asking");
+        // Answering by voice means the user is listening, not reading: ask aloud too.
+        if (byVoice) speak(t.questions[step.question], language);
+        return;
+      case "review":
+        if (result) openReview(result);
+        return;
     }
-    setLatest(result);
-    if (result.emergency.emergency) {
-      window.speechSynthesis?.cancel();
-      setPhase("emergency");
-      return;
-    }
-    const total = nextTurns.reduce((sum, turn) => sum + turn.answer.length, 0);
-    if (result.nextQuestion && canAnswerMore(nextTurns) && total < MAX_TOTAL - MAX_ANSWER) {
-      setQuestion(result.nextQuestion);
-      setPhase("asking");
-      // Answering by voice means the user is listening, not reading: ask aloud too.
-      if (byVoice) speak(t.questions[result.nextQuestion], language);
-      return;
-    }
-    openReview(result);
   }
 
   function answer(raw: string, byVoice: boolean) {

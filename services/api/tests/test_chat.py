@@ -156,6 +156,7 @@ def test_route_walks_a_whole_conversation() -> None:
     assert last["nextQuestion"] is None
     assert [m["name"] for m in last["medications"]] == ["panadol"]
     assert last["emergency"] == {"emergency": False, "reasonCodes": []}
+    assert last["extractionFailed"] is False
 
 
 def test_route_keeps_an_earlier_emergency() -> None:
@@ -177,6 +178,23 @@ def test_route_keeps_emergency_check_when_llm_fails() -> None:
     assert body["symptoms"] == [] and body["medications"] == []
     assert body["emergency"]["emergency"] is True
     assert body["nextQuestion"] is None
+    assert body["extractionFailed"] is True
+
+
+def test_route_reports_failed_extraction_instead_of_asking() -> None:
+    class Broken:
+        async def extract_chat(self, turns, lang) -> Drafts:
+            raise ExtractionFailed("down")
+
+    app.dependency_overrides[get_extractor] = Broken
+    try:
+        body = post((None, "I have a headache")).json()
+    finally:
+        app.dependency_overrides.clear()
+    # Not "nothing found, what is bothering you?": the client must offer a retry.
+    assert body["extractionFailed"] is True
+    assert body["nextQuestion"] is None
+    assert body["emergency"]["emergency"] is False
 
 
 @pytest.mark.parametrize(

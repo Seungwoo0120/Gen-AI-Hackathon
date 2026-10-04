@@ -179,7 +179,8 @@ export const en = {
     privacy:
       "Your phone's speech service (Google or Apple) turns your voice into text. The text is sent to our AI service to organise it. Nothing is saved until you tap Save.",
     errorTitle: "Something went wrong",
-    errorMessage: "We could not reach the service. Your answers are kept. Please try again.",
+    errorMessage:
+      "We could not organise your answer just now. Your answers are kept. Please try again.",
     retry: "Try again",
     emergencyTitle: "Call 999 if you need help now",
     emergencyMessage:

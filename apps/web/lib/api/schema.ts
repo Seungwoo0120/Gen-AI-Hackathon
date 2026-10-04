@@ -455,12 +455,21 @@ export interface components {
             lang?: components["schemas"]["Language"];
         };
         ChatResult: {
-            /** @description The next question to ask, or null when the conversation is done */
+            /**
+             * @description The next question to ask, or null when the conversation is done.
+             *     Also null when extractionFailed is true.
+             */
             nextQuestion: components["schemas"]["ChatQuestion"] | null;
             /** @description Drafts from the whole conversation (replace earlier drafts) */
             symptoms: components["schemas"]["SymptomInput"][];
             medications: components["schemas"]["MedicationInput"][];
             emergency: components["schemas"]["EmergencyCheck"];
+            /**
+             * @description True when the answers could not be organised (e.g. the AI service is
+             *     down), so the empty drafts mean nothing. The client should say so and
+             *     offer a retry instead of "nothing found". The emergency check still ran.
+             */
+            extractionFailed: boolean;
         };
         DoctorSummary: {
             /** Format: date-time */

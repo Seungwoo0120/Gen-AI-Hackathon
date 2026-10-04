@@ -773,10 +773,12 @@ components:
 
     ChatResult:
       type: object
-      required: [nextQuestion, symptoms, medications, emergency]
+      required: [nextQuestion, symptoms, medications, emergency, extractionFailed]
       properties:
         nextQuestion:
-          description: The next question to ask, or null when the conversation is done
+          description: |
+            The next question to ask, or null when the conversation is done.
+            Also null when extractionFailed is true.
           oneOf:
             - $ref: "#/components/schemas/ChatQuestion"
             - type: "null"
@@ -791,6 +793,12 @@ components:
             $ref: "#/components/schemas/MedicationInput"
         emergency:
           $ref: "#/components/schemas/EmergencyCheck"
+        extractionFailed:
+          description: |
+            True when the answers could not be organised (e.g. the AI service is
+            down), so the empty drafts mean nothing. The client should say so and
+            offer a retry instead of "nothing found". The emergency check still ran.
+          type: boolean
 
     # --- Doctor summary ---
 

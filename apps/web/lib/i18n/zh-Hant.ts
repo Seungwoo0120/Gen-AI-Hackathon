@@ -176,7 +176,7 @@ export const zhHant: Messages = {
     privacy:
       "你手機嘅語音服務（Google 或 Apple）會將你把聲轉做文字。文字會傳送到我哋嘅 AI 服務整理。你按「儲存」之前，乜嘢都唔會儲存。",
     errorTitle: "出咗啲問題",
-    errorMessage: "暫時連接唔到服務。你嘅答案已經保留，請再試一次。",
+    errorMessage: "暫時未能整理你嘅答案。你嘅答案已經保留，請再試一次。",
     retry: "再試一次",
     emergencyTitle: "如果你而家需要幫助，請致電 999",
     emergencyMessage: "你提到嘅情況可能好嚴重。唔好等呢個程式：請即致電 999 或者去急症室。",
