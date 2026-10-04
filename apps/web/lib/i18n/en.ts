@@ -1,4 +1,4 @@
-import type { CareLevel, InteractionWarning } from "@/lib/api/types";
+import type { CareLevel, ChatQuestion, InteractionWarning } from "@/lib/api/types";
 import type { SummaryRange } from "@/lib/summary/range";
 
 type InteractionSeverity = InteractionWarning["severity"];
@@ -153,9 +153,62 @@ export const en = {
     start: "Read aloud",
     stop: "Stop reading",
   },
-  // Screen: /chat, voice-first conversation (Claude).
+  // Screen: /chat, voice-first conversation.
   chat: {
     title: "Chat",
+    intro: "Tell me how you feel. I will write it down for your doctor.",
+    opening: "How are you feeling today?",
+    questions: {
+      ask_symptoms: "What is bothering you? For example a pain, a cough, or a medicine you take.",
+      ask_onset: "When did it start?",
+      ask_severity: "How bad is it, from 1 (mild) to 5 (very bad)?",
+      ask_medications: "Have you taken any medicine for it? Which one, and how much?",
+    } satisfies Record<ChatQuestion, string>,
+    conversationLabel: "Conversation",
+    you: "You",
+    micStart: "Tap and speak",
+    micStop: "Tap when you finish",
+    listening: "Listening…",
+    typeLabel: "Or type your answer",
+    send: "Send",
+    sending: "Writing it down…",
+    finishNow: "I'm done, show my notes",
+    noVoice: "Voice input does not work in this browser. Please type instead.",
+    micBlocked: "The microphone is blocked. Allow it in the browser settings, or type instead.",
+    micFailed: "Voice input stopped working. Please try again, or type instead.",
+    privacy:
+      "Your phone's speech service (Google or Apple) turns your voice into text. The text is sent to our AI service to organise it. Nothing is saved until you tap Save.",
+    errorTitle: "Something went wrong",
+    errorMessage: "We could not reach the service. Your answers are kept. Please try again.",
+    retry: "Try again",
+    emergencyTitle: "Call 999 if you need help now",
+    emergencyMessage:
+      "You mentioned something that can be serious. Do not wait for this app: call 999 or go to A&E.",
+    findCare: "See A&E waiting times",
+    startOver: "Start a new note",
+    review: {
+      title: "Here is what I noted",
+      intro: "Check it and correct anything wrong. Nothing is saved until you tap Save.",
+      symptoms: "Symptoms",
+      medications: "Medicines",
+      name: "Name",
+      details: "Details",
+      severity: "How bad (1 to 5)",
+      severityUnknown: "Not given",
+      started: "Started",
+      dose: "Dose",
+      times: "Times",
+      keep: "Keep this",
+      nothing: "I did not catch any symptoms or medicines. You can start again.",
+      save: "Save",
+      saving: "Saving…",
+      saveError: "Some notes could not be saved. Please tap Save again.",
+    },
+    saved: {
+      title: "Saved",
+      message: "Your notes are now in your summary for the doctor.",
+      summary: "Open my summary",
+    },
   },
 };
 

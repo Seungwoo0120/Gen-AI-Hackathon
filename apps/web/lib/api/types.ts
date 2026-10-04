@@ -20,3 +20,6 @@ export type ExtractResult = Schemas["ExtractResult"];
 export type DoctorSummary = Schemas["DoctorSummary"];
 export type Language = Schemas["Language"];
 export type LocalizedText = Schemas["LocalizedText"];
+export type ChatQuestion = Schemas["ChatQuestion"];
+export type ChatTurn = Schemas["ChatTurn"];
+export type ChatResult = Schemas["ChatResult"];
