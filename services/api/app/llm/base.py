@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from app.llm.schemas import MedicationDraft, SymptomDraft
+from app.llm.schemas import ChatTurn, MedicationDraft, SymptomDraft
 
 
 @dataclass
@@ -16,3 +16,12 @@ class ExtractionFailed(Exception):
 
 class Extractor(Protocol):
     async def extract(self, text: str, lang: str | None) -> Drafts: ...
+
+    async def extract_chat(self, turns: list[ChatTurn], lang: str | None) -> Drafts:
+        """Drafts from the whole conversation so far, each answer read with its question."""
+        ...
+
+
+def answers_text(turns: list[ChatTurn]) -> str:
+    """Only the user's words: what the guards check drafts against."""
+    return "\n".join(turn.answer for turn in turns)

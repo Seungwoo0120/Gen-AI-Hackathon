@@ -107,6 +107,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * One turn of the voice-first logging conversation
+         * @description Stateless: the client sends every turn so far and gets back the drafts
+         *     extracted from the whole conversation, the emergency check over all
+         *     answers, and the next follow-up question.
+         *
+         *     Follow-up questions are fixed codes chosen by rules (never text written
+         *     by the LLM); the frontend translates them. Each is asked at most once.
+         *     `nextQuestion: null` means the conversation is done: show the drafts for
+         *     the user to confirm, or "Call 999" first if `emergency.emergency` is true.
+         *
+         *     Drafts are not saved. Save confirmed drafts with POST /symptoms
+         *     (`source: chat`) and POST /medications.
+         */
+        post: operations["chat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/symptoms": {
         parameters: {
             query?: never;
@@ -342,7 +372,7 @@ export interface components {
              */
             recordedAt?: string | null;
             /**
-             * @description How the entry was created. Use `chat` when saving drafts from /extract.
+             * @description How the entry was created. Use `chat` when saving drafts from /chat or /extract.
              * @default manual
              * @enum {string}
              */
@@ -365,6 +395,32 @@ export interface components {
             lang?: components["schemas"]["Language"];
         };
         ExtractResult: {
+            symptoms: components["schemas"]["SymptomInput"][];
+            medications: components["schemas"]["MedicationInput"][];
+            emergency: components["schemas"]["EmergencyCheck"];
+        };
+        /**
+         * @description Follow-up question codes, asked in this order when the answer is still missing:
+         *     ask_symptoms (nothing recorded yet), ask_onset (when it started),
+         *     ask_severity (1 to 5), ask_medications (any medicine taken).
+         * @enum {string}
+         */
+        ChatQuestion: "ask_symptoms" | "ask_onset" | "ask_severity" | "ask_medications";
+        ChatTurn: {
+            /** @description The question the app asked just before this answer; null for the opening turn */
+            question?: components["schemas"]["ChatQuestion"] | null;
+            /** @description What the user said or typed */
+            answer: string;
+        };
+        ChatRequest: {
+            /** @description Every turn so far, oldest first. Answers may total at most 4000 characters. */
+            turns: components["schemas"]["ChatTurn"][];
+            lang?: components["schemas"]["Language"];
+        };
+        ChatResult: {
+            /** @description The next question to ask, or null when the conversation is done */
+            nextQuestion: components["schemas"]["ChatQuestion"] | null;
+            /** @description Drafts from the whole conversation (replace earlier drafts) */
             symptoms: components["schemas"]["SymptomInput"][];
             medications: components["schemas"]["MedicationInput"][];
             emergency: components["schemas"]["EmergencyCheck"];
@@ -532,6 +588,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExtractResult"];
+                };
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    chat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Next question, drafts and emergency check */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResult"];
                 };
             };
             422: components["responses"]["ValidationError"];
