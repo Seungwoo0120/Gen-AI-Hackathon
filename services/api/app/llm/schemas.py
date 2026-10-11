@@ -72,3 +72,13 @@ class ChatResult(ApiModel):
     symptoms: list[SymptomDraft]
     medications: list[MedicationDraft]
     emergency: EmergencyCheck
+
+
+class TriageRequest(ApiModel):
+    symptoms: str = Field(min_length=1, max_length=2000)
+    current_location: str = Field(min_length=1, max_length=200)
+
+
+class TriageResult(ApiModel):
+    recommendation: str
+    emergency: EmergencyCheck

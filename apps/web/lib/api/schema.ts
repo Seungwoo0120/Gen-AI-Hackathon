@@ -64,6 +64,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/triage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * GenAI recommendation of the fastest reachable A&E department
+         * @description Combines live A&E wait times with estimated travel time to recommend the
+         *     hospital with the lowest total time to care (travel + wait). If the
+         *     symptoms match an emergency rule, returns a call-999 recommendation
+         *     without running the agent.
+         */
+        post: operations["triagePatient"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/interactions/check": {
         parameters: {
             query?: never;
@@ -310,6 +333,20 @@ export interface components {
             emergency: boolean;
             reasonCodes: string[];
         };
+        TriageRequest: {
+            /**
+             * @description How the user feels. Used only for the rule-based emergency check;
+             *     never sent to the LLM, which only receives currentLocation.
+             */
+            symptoms: string;
+            /** @description Patient's current location, e.g. an MTR station or address */
+            currentLocation: string;
+        };
+        TriageResult: {
+            /** @description The agent's recommendation, in plain language */
+            recommendation: string;
+            emergency: components["schemas"]["EmergencyCheck"];
+        };
         MedicationSchedule: {
             /** @description Local times of day in HH:MM (24h), Hong Kong time */
             times: string[];
@@ -538,6 +575,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoutingResult"];
+                };
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    triagePatient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TriageRequest"];
+            };
+        };
+        responses: {
+            /** @description Triage recommendation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TriageResult"];
                 };
             };
             422: components["responses"]["ValidationError"];
