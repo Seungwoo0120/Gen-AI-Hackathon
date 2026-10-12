@@ -6,7 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.db import init_db
-from app.routers import ae, chat, extract, interactions, medications, routing, summary, symptoms
+from app.routers import (
+    ae,
+    chat,
+    extract,
+    interactions,
+    medications,
+    routing,
+    summary,
+    symptoms,
+    triage,
+)
 
 
 @asynccontextmanager
@@ -15,7 +25,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-app = FastAPI(title="HK Health Companion API", version="0.4.0", lifespan=lifespan)
+app = FastAPI(title="HK Health Companion API", version="0.5.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_settings().cors_origins,
@@ -30,5 +40,5 @@ def health() -> dict[str, str]:
 
 
 # Each router owns one area of openapi.yaml. Tracks edit their own router file only.
-for module in (ae, routing, interactions, extract, chat, symptoms, medications, summary):
+for module in (ae, routing, interactions, extract, chat, symptoms, medications, summary, triage):
     app.include_router(module.router)

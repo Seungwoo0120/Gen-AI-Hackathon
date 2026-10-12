@@ -17,7 +17,7 @@ FIXTURE_DIR = Path(__file__).parent / "fixtures" / "ae"
 
 
 def _fixture(name: str) -> dict[str, object]:
-    return json.loads((FIXTURE_DIR / name).read_text())
+    return json.loads((FIXTURE_DIR / name).read_text(encoding="utf-8"))
 
 
 @pytest.mark.parametrize(

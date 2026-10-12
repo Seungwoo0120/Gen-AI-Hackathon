@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: HK Health Companion API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     Contract between apps/web and services/api. Change it only in a dedicated PR
     and announce the change to the team before merging (see CLAUDE.md).
@@ -70,6 +70,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RoutingResult"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/triage:
+    post:
+      operationId: triagePatient
+      tags: [care]
+      summary: GenAI recommendation of the fastest reachable A&E department
+      description: |
+        Combines live A&E wait times with estimated travel time to recommend the
+        hospital with the lowest total time to care (travel + wait). If the
+        symptoms match an emergency rule, returns a call-999 recommendation
+        without running the agent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TriageRequest"
+      responses:
+        "200":
+          description: Triage recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TriageResult"
         "422":
           $ref: "#/components/responses/ValidationError"
 
@@ -478,6 +504,33 @@ components:
           type: array
           items:
             type: string
+
+    TriageRequest:
+      type: object
+      required: [symptoms, currentLocation]
+      properties:
+        symptoms:
+          description: |
+            How the user feels. Used only for the rule-based emergency check;
+            never sent to the LLM, which only receives currentLocation.
+          type: string
+          minLength: 1
+          maxLength: 2000
+        currentLocation:
+          description: Patient's current location, e.g. an MTR station or address
+          type: string
+          minLength: 1
+          maxLength: 200
+
+    TriageResult:
+      type: object
+      required: [recommendation, emergency]
+      properties:
+        recommendation:
+          description: The agent's recommendation, in plain language
+          type: string
+        emergency:
+          $ref: "#/components/schemas/EmergencyCheck"
 
     # --- Medications and interactions ---
 
