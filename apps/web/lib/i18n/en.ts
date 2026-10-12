@@ -1,4 +1,5 @@
-import type { CareLevel } from "@/lib/api/types";
+import type { CareLevel, InteractionWarning } from "@/lib/api/types";
+import type { SummaryRange } from "@/lib/summary/range";
 
 // English is the reference: every other language must provide the same keys.
 export const en = {
@@ -29,7 +30,51 @@ export const en = {
   },
   // Screen: /summary (track H adds keys here only).
   summary: {
-    title: "Summary",
+    title: "Summary for your doctor",
+    rangeLabel: "Time period",
+    ranges: {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      all: "All records",
+    } satisfies Record<SummaryRange, string>,
+    since: "(since {date})",
+    labelValue: "{label}: {value}",
+    generated: "Created",
+    print: "Print",
+    medications: "Medications",
+    dose: "Dose",
+    everyDay: "Every day at {times}",
+    onDays: "{days} at {times}",
+    noMedications: "No medications recorded.",
+    warnings: "Interaction warnings",
+    warningKind: {
+      interaction: "Drug interaction",
+      duplicate_ingredient: "Same active ingredient",
+    } satisfies Record<InteractionWarning["kind"], string>,
+    warningSeverity: "Severity",
+    severity: {
+      major: "Major",
+      moderate: "Moderate",
+      minor: "Minor",
+    } satisfies Record<InteractionWarning["severity"], string>,
+    involved: "Medications involved",
+    sources: "Sources",
+    symptoms: "Symptoms",
+    symptomSeverity: "Severity: {value} / 5",
+    viaChat: "via chat",
+    noSymptoms: "No symptoms recorded in this period.",
+    emptyTitle: "Nothing recorded in this period",
+    emptyMessage: "Tell the app how you feel in Chat, or add your medicines. They will appear here.",
+    goToChat: "Go to Chat",
+    goToMedications: "Go to Medications",
+    errorTitle: "The summary is unavailable",
+    errorMessage: "We could not reach your records. Please try again shortly.",
+    retry: "Try again",
+    readAloudIntro: "Summary for your doctor: {range}.",
+    readAloudMedications: "Medications: {count}.",
+    readAloudMedicationNames: "{names}.",
+    readAloudWarnings: "Interaction warnings: {count}.",
+    readAloudSymptoms: "Symptoms: {count}.",
   },
   care: {
     title: "Find care",
