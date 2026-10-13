@@ -1,0 +1,123 @@
+.form {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 32rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.field label,
+.field legend {
+  font-weight: 700;
+}
+
+.field input[type="text"],
+.field input[type="time"],
+.field textarea {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.field textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.fieldError {
+  margin: 0;
+  color: var(--color-emergency);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.timeRow {
+  display: flex;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rowButton {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  align-items: center;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.dayOption {
+  display: flex;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cancelLink {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.submit {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  align-items: center;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,66 @@
+.section {
+  display: grid;
+  margin: 0 0 1.25rem;
+  gap: 0.8rem;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.warning {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-left-width: 0.4rem;
+  border-radius: 0.65rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+
+.warning--major {
+  border-left-color: var(--color-emergency);
+}
+
+.warning--moderate {
+  border-left-color: #a56a00;
+  background: var(--color-warning);
+}
+
+.warning--minor {
+  border-left-color: var(--color-primary);
+}
+
+.severity {
+  margin: 0 0 0.3rem;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.medications {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.summary {
+  margin: 0 0 0.5rem;
+}
+
+.sources {
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.unrecognized {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 0.5rem;
+  color: var(--color-muted);
+}

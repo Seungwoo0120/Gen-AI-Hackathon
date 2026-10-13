@@ -1,0 +1,53 @@
+.card {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+
+.name {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.dose {
+  margin: 0 0 0.4rem;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.schedule {
+  margin: 0 0 0.4rem;
+  color: var(--color-text);
+}
+
+.notes {
+  margin: 0 0 0.6rem;
+  color: var(--color-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.actionLink,
+.actionLinkDanger {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.85rem;
+  align-items: center;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.5rem;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.actionLinkDanger {
+  border-color: var(--color-emergency);
+  color: var(--color-emergency);
+}
