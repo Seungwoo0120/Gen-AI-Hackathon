@@ -1,6 +1,8 @@
 import type { CareLevel, InteractionWarning } from "@/lib/api/types";
 import type { SummaryRange } from "@/lib/summary/range";
 
+type InteractionSeverity = InteractionWarning["severity"];
+
 // English is the reference: every other language must provide the same keys.
 export const en = {
   appName: "HK Health Companion",
@@ -22,6 +24,59 @@ export const en = {
   // Screen: /medications (track G adds keys here only).
   medications: {
     title: "Medications",
+    intro: "Keep track of what you take, and see interaction warnings.",
+    listLabel: "Your medications",
+    addButton: "Add medication",
+    loading: "Loading your medications…",
+    emptyTitle: "No medications yet",
+    emptyBody: "Add your first medication to keep track of it and get interaction warnings.",
+    edit: "Edit",
+    delete: "Delete",
+    scheduleEveryDay: "every day",
+    scheduleNoTimes: "No times set",
+    dayNames: { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 7: "Sun" },
+    errorTitle: "Medications are unavailable",
+    errorMessage: "We could not reach the medications service. Please try again shortly.",
+    retry: "Try again",
+    form: {
+      addTitle: "Add medication",
+      editTitle: "Edit medication",
+      nameLabel: "Name",
+      doseLabel: "Dose",
+      doseHint: "For example, 500 mg or 1 tablet.",
+      timesLabel: "Times",
+      addTime: "Add time",
+      removeTime: "Remove time",
+      daysLabel: "Days",
+      daysHint: "Leave all unchecked for every day.",
+      notesLabel: "Notes",
+      save: "Save",
+      cancel: "Cancel",
+      errors: {
+        nameRequired: "Enter a name.",
+        nameTooLong: "Name must be 200 characters or fewer.",
+        doseTooLong: "Dose must be 100 characters or fewer.",
+        notesTooLong: "Notes must be 1000 characters or fewer.",
+        timesInvalid: "Enter valid times.",
+        generic: "Please fix the errors below and try again.",
+      },
+    },
+    deleteConfirm: {
+      title: "Delete this medication?",
+      body: "This cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
+    },
+    interactions: {
+      title: "Interaction warnings",
+      notChecked: "Not checked",
+      unavailable: "We could not check for interactions right now.",
+      severity: {
+        major: "Major",
+        moderate: "Moderate",
+        minor: "Minor",
+      } satisfies Record<InteractionSeverity, string>,
+    },
   },
   emergency: {
     title: "Emergency",

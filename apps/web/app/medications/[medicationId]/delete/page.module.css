@@ -1,0 +1,19 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.confirmButton {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  align-items: center;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--color-emergency);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
