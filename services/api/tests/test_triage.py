@@ -5,10 +5,12 @@ from types import SimpleNamespace
 import pytest
 from fastapi.testclient import TestClient
 
+from app.adapters import maps as maps_module
 from app.adapters.ae import get_ae_source
 from app.adapters.ae import live as ae_live
 from app.adapters.ae.base import AeHospitalWaitTime, AeWaitTimesResponse, LocalizedText
 from app.adapters.maps import TravelTimeUnavailable, calculate_travel_time, get_travel_time
+from app.adapters.maps.estimate import estimate_travel_time
 from app.adapters.maps.mock import mock_travel_time
 from app.config import Settings
 from app.llm import triage as triage_module
@@ -159,6 +161,18 @@ def test_mock_agent_recommends_lowest_total_time() -> None:
     assert "Fast Overall" in result.split("\n")[0]  # 10+60=70 beats 5+180=185
 
 
+def test_mock_agent_checks_hospitals_beyond_the_shortest_waits() -> None:
+    waits = {"Far A": 10, "Far B": 20, "Far C": 30, "Next Door": 60}
+    travel = {"Far A": 120, "Far B": 120, "Far C": 120, "Next Door": 5}
+    agent = MockTriageAgent(
+        FakeAeSource(waits), lambda origin, destination, mode: travel[destination]
+    )
+
+    result = run(agent.recommend("Central"))
+
+    assert "Next Door" in result.split("\n")[0]  # 5+60=65 beats 120+10=130
+
+
 def test_mock_agent_handles_missing_travel_time() -> None:
     def always_fails(origin: str, destination: str, mode: str) -> int:
         raise TravelTimeUnavailable("no key")
@@ -168,6 +182,20 @@ def test_mock_agent_handles_missing_travel_time() -> None:
     result = run(agent.recommend("Central"))
 
     assert "Only Hospital" in result
+
+
+def test_mock_agent_without_travel_times_skips_island_hospitals() -> None:
+    def always_fails(origin: str, destination: str, mode: str) -> int:
+        raise TravelTimeUnavailable("location not found")
+
+    agent = MockTriageAgent(
+        FakeAeSource({"St John Hospital": 0, "Queen Mary Hospital": 150}), always_fails
+    )
+
+    result = run(agent.recommend("asdf"))
+
+    assert "Queen Mary Hospital" in result
+    assert "St John Hospital" not in result
 
 
 # --- agent and adapter selection ---
@@ -199,10 +227,14 @@ def test_live_with_openai_uses_deterministic_agent() -> None:
     assert isinstance(agent, MockTriageAgent)
 
 
-def test_travel_time_follows_data_source() -> None:
+def test_travel_time_follows_data_source(monkeypatch) -> None:
     assert get_travel_time(Settings(_env_file=None)) is mock_travel_time
     live = Settings(_env_file=None, data_source="live")
+    monkeypatch.setattr(maps_module, "has_api_key", lambda: True)
     assert get_travel_time(live) is calculate_travel_time
+    # No Google key (it needs a billing account): estimate from distance instead.
+    monkeypatch.setattr(maps_module, "has_api_key", lambda: False)
+    assert get_travel_time(live) is estimate_travel_time
 
 
 # --- route ---

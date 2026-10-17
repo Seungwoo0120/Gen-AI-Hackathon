@@ -157,7 +157,7 @@ export const en = {
       levelLabel: "Suggested next step",
       notAeNote: "If you get worse, or you are worried, go to A&E or call 999.",
       fastestTitle: "Fastest A&E for you",
-      fastestSource: "Based on live Hospital Authority waiting times and estimated travel time.",
+      fastestSource: "Based on live Hospital Authority waiting times and an approximate travel time.",
       englishOnly: "This suggestion is only available in English for now.",
       needsLocation: "Add where you are now to see which A&E you can reach and be seen at the soonest.",
       fastestUnavailable: "We could not compare A&E departments just now. Check the waiting times below.",

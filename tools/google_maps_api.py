@@ -46,6 +46,14 @@ def _load_api_key() -> str:
     raise TravelTimeUnavailable(f"{ENV_VAR} is not set (checked environment and .env)")
 
 
+def has_api_key() -> bool:
+    try:
+        _load_api_key()
+    except TravelTimeUnavailable:
+        return False
+    return True
+
+
 def _fetch_json(url: str) -> dict:
     with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_SECONDS) as response:  # noqa: S310
         return json.load(response)

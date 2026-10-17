@@ -153,7 +153,7 @@ export const zhHant: Messages = {
       levelLabel: "建議下一步",
       notAeNote: "如果情況轉差或者你擔心，請去急症室或致電 999。",
       fastestTitle: "對你最快嘅急症室",
-      fastestSource: "根據醫院管理局即時輪候時間及估計交通時間。",
+      fastestSource: "根據醫院管理局即時輪候時間及大約交通時間。",
       englishOnly: "此建議暫時只有英文版本。",
       needsLocation: "填寫你而家嘅位置，就可以睇到邊間急症室最快可以到達同睇到醫生。",
       fastestUnavailable: "暫時未能比較各急症室，請查看下面嘅輪候時間。",
