@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { api } from "@/lib/api/client";
+import { alreadyListed } from "@/lib/chat/drafts";
 import type {
   ChatResult,
   ChatTurn,
@@ -36,14 +37,26 @@ export async function saveDrafts(
   for (const [index, body] of symptoms.entries()) {
     if (await succeeded(() => api.POST("/symptoms", { body }))) outcome.savedSymptoms.push(index);
   }
+  const skip = alreadyListed(medications, await medicationNames());
   for (const [index, body] of medications.entries()) {
-    if (await succeeded(() => api.POST("/medications", { body }))) {
+    // Already on the list counts as saved: nothing is lost, and nothing is listed twice.
+    if (skip.has(index) || (await succeeded(() => api.POST("/medications", { body })))) {
       outcome.savedMedications.push(index);
     }
   }
   revalidatePath("/summary");
   revalidatePath("/medications");
   return outcome;
+}
+
+/** Names on the medicine list now; empty if it can't be read, so nothing is dropped. */
+async function medicationNames(): Promise<string[]> {
+  try {
+    const { data } = await api.GET("/medications", { cache: "no-store" });
+    return (data ?? []).map((item) => item.name);
+  } catch {
+    return [];
+  }
 }
 
 async function succeeded(request: () => Promise<{ response: Response }>): Promise<boolean> {
