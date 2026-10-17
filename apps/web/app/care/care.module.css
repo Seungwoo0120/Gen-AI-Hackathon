@@ -1,0 +1,133 @@
+.finder {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+  background: var(--color-surface);
+}
+
+.finder h2,
+.finder p {
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-muted);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.hint {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.primary {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 0.6rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.result:focus {
+  outline: none;
+}
+
+.emergency {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 0.9rem;
+  background: var(--color-emergency);
+  color: #ffffff;
+}
+
+.emergency h3,
+.emergency p {
+  margin: 0;
+}
+
+.callButton {
+  display: inline-flex;
+  min-height: 3.5rem;
+  padding: 0.6rem 1.4rem;
+  align-items: center;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: var(--color-emergency-dark);
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.level {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-left: 0.4rem solid var(--color-primary);
+  border-radius: 0.5rem;
+  background: var(--color-background);
+}
+
+.level h3,
+.level h4,
+.level p {
+  margin: 0;
+}
+
+.levelLabel {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.level h3 {
+  font-size: 1.4rem;
+}
+
+.fastest {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.6rem;
+  background: var(--color-surface);
+}
+
+.recommendation {
+  white-space: pre-line;
+}

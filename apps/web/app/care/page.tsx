@@ -1,5 +1,6 @@
 import { EmergencyBanner } from "@/components/EmergencyBanner";
 import { MedicalDisclaimer } from "@/components/MedicalDisclaimer";
+import { CareFinder } from "./CareFinder";
 import { api } from "@/lib/api/client";
 import type { AeWaitTimesResponse, Language } from "@/lib/api/types";
 import { getMessages } from "@/lib/i18n";
@@ -36,6 +37,13 @@ export default async function CarePage() {
         <p>{t.care.intro}</p>
       </section>
       <MedicalDisclaimer />
+      <CareFinder
+        careLevel={t.careLevel}
+        emergency={t.emergency}
+        language={language}
+        messages={t.care.finder}
+        readAloud={t.readAloud}
+      />
 
       {waitTimes ? (
         <>
