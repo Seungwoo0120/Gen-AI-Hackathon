@@ -51,8 +51,8 @@ emergency phrases ourselves.
   patterns in `rules.yaml`, and the Chinese drug names in the interaction dataset.
   Keep a list of everything waiting for that review in `docs/cantonese-review.md`.
 - Until then, every Chinese string stays marked "needs native review".
-- **Voice input in Cantonese** depends on the phone test (`/voice-test`). Plan the
-  demo so it still works in English if Cantonese recognition is weak.
+- **Voice input in Cantonese** worked in the Android phone test (2026-10-03) and in
+  `/chat`. Plan the demo so it still works in English if Cantonese recognition is weak.
 
 ## Demo flow (target)
 
