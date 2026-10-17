@@ -268,9 +268,7 @@ def get_triage_agent(
     if settings.data_source == "live" and settings.llm_provider == "anthropic":
         if settings.llm_api_key:
             client = _anthropic_client(settings.llm_api_key)
-            return ClaudeTriageAgent(
-                client, settings.resolved_llm_model, ae_source, travel_time
-            )
+            return ClaudeTriageAgent(client, settings.resolved_llm_model, ae_source, travel_time)
         logger.warning("DATA_SOURCE=live but LLM_API_KEY is empty; using the mock triage agent")
     return MockTriageAgent(ae_source, travel_time)
 

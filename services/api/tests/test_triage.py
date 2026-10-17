@@ -191,6 +191,14 @@ def test_live_with_key_uses_claude() -> None:
     assert isinstance(agent, ClaudeTriageAgent)
 
 
+def test_live_with_openai_uses_deterministic_agent() -> None:
+    settings = Settings(
+        _env_file=None, data_source="live", llm_provider="openai", llm_api_key="test-key"
+    )
+    agent = get_triage_agent(settings, FakeAeSource({}), fixed_travel(1))
+    assert isinstance(agent, MockTriageAgent)
+
+
 def test_travel_time_follows_data_source() -> None:
     assert get_travel_time(Settings(_env_file=None)) is mock_travel_time
     live = Settings(_env_file=None, data_source="live")
