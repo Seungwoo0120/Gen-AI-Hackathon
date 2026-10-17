@@ -20,14 +20,18 @@ async def chat(
 ) -> ChatResult:
     # Every answer so far, every turn: an emergency mentioned early is never lost.
     emergency = check_emergency(answers_text(request.turns))
+    failed = False
     try:
         drafts = await extractor.extract_chat(request.turns, request.lang)
     except ExtractionFailed as error:
         logger.warning("Chat extraction failed: %s", error)
-        drafts = Drafts()
+        drafts, failed = Drafts(), True
+    # Without drafts there is nothing to base a follow-up question on.
+    question = None if failed else next_question(request.turns, drafts, emergency.emergency)
     return ChatResult(
-        next_question=next_question(request.turns, drafts, emergency.emergency),
+        next_question=question,
         symptoms=drafts.symptoms,
         medications=drafts.medications,
         emergency=emergency,
+        extraction_failed=failed,
     )

@@ -5,6 +5,7 @@ by non-native speakers or AI and must be checked by a native Hong Kong speaker
 before the demo. Add items as you write new Chinese text; tick them when reviewed.
 
 - [ ] `apps/web/lib/i18n/zh-Hant.ts`: all UI text (natural HK wording, not Mainland or Taiwan terms)
+- [ ] `/chat` follow-up questions (`chat.questions` in `zh-Hant.ts`): short, polite, easy for an older person to answer by voice? These are read aloud.
 - [ ] `services/api/app/routing/rules.yaml`: every `zh` emergency and A&E pattern. Are these what people actually say? What common phrasings are missing?
 - [ ] `services/api/app/interactions/data/interactions.yaml`: Chinese drug and brand names (some look like Mainland terms, e.g. 氨氯地平, 辛伐他汀)
 - [ ] `services/api/app/llm/mock.py`: Chinese symptom keywords
