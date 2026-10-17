@@ -11,6 +11,7 @@ calculation deterministically, the way app/llm/__init__.py does for chat
 extraction.
 """
 
+import asyncio
 import json
 import logging
 from functools import lru_cache
@@ -22,6 +23,7 @@ from starlette.concurrency import run_in_threadpool
 from app.adapters.ae import get_ae_source
 from app.adapters.ae.base import AeSourceUnavailable, AeWaitTimesSource
 from app.adapters.maps import TravelMode, TravelTimeFn, TravelTimeUnavailable, get_travel_time
+from app.adapters.maps.estimate import ISLAND_HOSPITALS
 from app.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -219,32 +221,39 @@ class MockTriageAgent:
         hospitals = [h for h in all_hospitals if h["wait_minutes"] is not None]
         if not hospitals:
             return "No hospital wait-time data is available right now."
-        shortlist = sorted(hospitals, key=lambda h: h["wait_minutes"])[: self.TOP_N]
+        shortlist = sorted(hospitals, key=lambda h: h["wait_minutes"])
 
-        scored: list[tuple[str, float, float]] = []
-        for hospital in shortlist:
+        # Check every hospital, not only the shortest waits: a short wait far away can
+        # lose to a longer wait next door. The lookups run side by side.
+        async def travel(hospital: dict[str, Any]) -> tuple[str, float, float] | None:
             try:
-                travel_minutes = await run_in_threadpool(
+                minutes = await run_in_threadpool(
                     self._travel_time, location, hospital["name"], self.DEFAULT_MODE
                 )
             except TravelTimeUnavailable:
-                continue
-            scored.append((hospital["name"], travel_minutes, hospital["wait_minutes"]))
+                return None
+            return hospital["name"], minutes, hospital["wait_minutes"]
+
+        checked = await asyncio.gather(*(travel(hospital) for hospital in hospitals))
+        scored = [row for row in checked if row is not None]
 
         if not scored:
-            fastest = shortlist[0]
+            # An island hospital is only reachable by ferry: never the default pick.
+            mainland = [h for h in shortlist if h["name"] not in ISLAND_HOSPITALS]
+            fastest = (mainland or shortlist)[0]
             return (
-                "Could not estimate travel time right now. By wait time alone, "
+                "Could not estimate travel time from that location. Try an MTR station or "
+                'district name, for example "Mong Kok Station". By wait time alone, '
                 f"{fastest['name']} has the shortest wait ({fastest['wait_minutes']:.0f} min)."
             )
 
         scored.sort(key=lambda row: row[1] + row[2])
         lines = []
-        for index, (name, travel, wait) in enumerate(scored):
-            total = travel + wait
+        for index, (name, travel_minutes, wait) in enumerate(scored[: self.TOP_N]):
+            total = travel_minutes + wait
             label = "Recommended" if index == 0 else "Also considered"
             lines.append(
-                f"{label}: {name} -- {travel:.0f} min travel + {wait:.0f} min wait "
+                f"{label}: {name} -- {travel_minutes:.0f} min travel + {wait:.0f} min wait "
                 f"= {total:.0f} min total."
             )
         lines.append("If this is life-threatening, call 999 instead of travelling yourself.")

@@ -23,8 +23,10 @@ from tools.google_maps_api import (  # noqa: E402
     TravelMode,
     TravelTimeUnavailable,
     calculate_travel_time,
+    has_api_key,
 )
 
+from app.adapters.maps.estimate import estimate_travel_time  # noqa: E402
 from app.adapters.maps.mock import mock_travel_time  # noqa: E402
 
 __all__ = ["TravelMode", "TravelTimeFn", "TravelTimeUnavailable", "get_travel_time"]
@@ -36,4 +38,5 @@ TravelTimeFn = Callable[[str, str, TravelMode], int]
 def get_travel_time(settings: Annotated[Settings, Depends(get_settings)]) -> TravelTimeFn:
     if settings.data_source == "mock":
         return mock_travel_time
-    return calculate_travel_time
+    # Google Maps needs a billing account; without a key, estimate from distance.
+    return calculate_travel_time if has_api_key() else estimate_travel_time
