@@ -5,9 +5,9 @@ Add challenges as they come up. Newest first.
 
 ## Done
 
-- 2026-10-04 · Voice chat screen: tap the big mic and talk (or type); the app asks short follow-up questions out loud, shows what it noted for the user to check and correct, and saves it to the doctor summary. Saying something like "chest pain" stops the chat and shows "Call 999" first.
 - 2026-10-13 · Medications screen: people can add, edit and confirm deletion of medicines, record times and days, and read or hear sourced interaction warnings in English or Traditional Chinese. Form inputs survive validation and service errors, including without JavaScript.
 - 2026-10-03 · The AI model is now switchable (Claude or OpenAI). On 11 made-up test cases (English, Cantonese, a prompt-injection attempt), OpenAI's GPT-6 Luna got 34 of 35 checks right in about 3 seconds, at roughly a tenth of the price of the cheapest Claude model.
+- 2026-10-04 · Voice chat screen: tap the big mic and talk (or type); the app asks short follow-up questions out loud, shows what it noted for the user to check and correct, and saves it to the doctor summary. Saying something like "chest pain" stops the chat and shows "Call 999" first.
 - 2026-10-03 · Conversation API: the app asks up to four short follow-up questions (what, since when, how bad, which medicine) until the record is complete. The questions are fixed and translated, never written by the AI, and every answer is checked for emergencies.
 - 2026-10-03 · Voice tested on a real Android phone (Samsung Galaxy): Cantonese speech recognition was accurate on all test sentences, and read-aloud uses a real Cantonese voice. Fixed three Android-specific issues found in the test (voice names, first-tap voice loading, recognition stopping after each pause).
 - 2026-10-02 · Doctor summary API: one call returns a person's symptoms in a date range, their medications and any interaction warnings (#11). Screens prepared for parallel work, plus a read-aloud button (#12) and a phone voice test page (#13).

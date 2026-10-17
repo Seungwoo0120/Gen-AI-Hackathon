@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: HK Health Companion API
-  version: 0.5.0
+  version: 0.6.0
   description: |
     Contract between apps/web and services/api. Change it only in a dedicated PR
     and announce the change to the team before merging (see CLAUDE.md).
