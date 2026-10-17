@@ -5,6 +5,9 @@ Add challenges as they come up. Newest first.
 
 ## Done
 
+- 2026-10-17 · Demo data (one made-up older person with four medicines and two weeks of symptoms), the temporary voice test page removed, and the README rewritten for the submission (#26, #27).
+- 2026-10-17 · "Where should I go?" on the Find care screen: people say how they feel and where they are. Rules decide between call 999, A&E, GP or specialist; for A&E the app suggests the department with the shortest travel + waiting time, from live HA data (#21, #24). Without a Google Maps key, travel time is estimated from OpenStreetMap and distance (#25).
+- 2026-10-12 · Doctor summary screen: a printable one-page summary of medicines, warnings and symptoms for the last 7 or 30 days, with read-aloud (#20).
 - 2026-10-13 · Medications screen: people can add, edit and confirm deletion of medicines, record times and days, and read or hear sourced interaction warnings in English or Traditional Chinese. Form inputs survive validation and service errors, including without JavaScript.
 - 2026-10-04 · Voice chat screen: tap the big mic and talk (or type); the app asks short follow-up questions out loud, shows what it noted for the user to check and correct, and saves it to the doctor summary. Saying something like "chest pain" stops the chat and shows "Call 999" first.
 - 2026-10-03 · The AI model is now switchable (Claude or OpenAI). On 11 made-up test cases (English, Cantonese, a prompt-injection attempt), OpenAI's GPT-6 Luna got 34 of 35 checks right in about 3 seconds, at roughly a tenth of the price of the cheapest Claude model.
@@ -28,4 +31,5 @@ Add challenges as they come up. Newest first.
 - Cantonese: no native speakers on the team. Chinese text needs a native review (`docs/cantonese-review.md`), and voice recognition on iPhone is still being tested.
 - Older users: typing is a barrier, so we are moving to voice-first input and read-aloud.
 - Real-world data: HA's English and Chinese files share no hospital ID, and the service can go down.
+- Cost: Google Maps needs a billing account, so without a key the A&E suggestion uses an approximate travel time (OpenStreetMap + distance). The deterministic suggestion is in English only.
 - Privacy: health data is sensitive; no real user data, no health text in logs, and consent is needed before sending voice or text to AI and speech services.
