@@ -7,8 +7,9 @@ from fastapi.testclient import TestClient
 from app.chat.questions import next_question
 from app.llm import get_extractor
 from app.llm.base import Drafts, ExtractionFailed
-from app.llm.claude import CHAT_RULES, SYSTEM_PROMPT, ClaudeExtractor, _LlmExtraction
+from app.llm.claude import ClaudeExtractor
 from app.llm.mock import MockExtractor
+from app.llm.prompting import CHAT_RULES, SYSTEM_PROMPT, LlmExtraction
 from app.llm.schemas import ChatTurn, MedicationDraft, SymptomDraft
 from app.main import app
 from tests.test_extract import FakeMessages, medication, symptom
@@ -82,7 +83,7 @@ def test_turn_limit_ends_the_conversation() -> None:
 
 
 def test_claude_chat_prompt_pairs_questions_with_answers() -> None:
-    messages = FakeMessages(_LlmExtraction(symptoms=[symptom(severity=3)], medications=[]))
+    messages = FakeMessages(LlmExtraction(symptoms=[symptom(severity=3)], medications=[]))
     extractor = ClaudeExtractor(SimpleNamespace(messages=messages), model="m")
 
     history = turns((None, "I have a headache"), ("ask_severity", "3"))
@@ -99,7 +100,7 @@ def test_claude_chat_prompt_pairs_questions_with_answers() -> None:
 
 def test_claude_chat_drops_medication_only_named_in_a_question() -> None:
     # "medicine" appears only in the app's question, never in the user's answers.
-    raw = _LlmExtraction(symptoms=[], medications=[medication("medicine")])
+    raw = LlmExtraction(symptoms=[], medications=[medication("medicine")])
     extractor = ClaudeExtractor(SimpleNamespace(messages=FakeMessages(raw)), model="m")
     history = turns((None, "headache"), ("ask_medications", "no"))
     assert asyncio.run(extractor.extract_chat(history, "en")).medications == []
