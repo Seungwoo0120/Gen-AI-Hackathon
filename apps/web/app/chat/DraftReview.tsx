@@ -17,12 +17,22 @@ type Props = {
   saveFailed: boolean;
 };
 
+const hongKongClock = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "Asia/Hong_Kong",
+});
+
 function formatStart(value: string, language: Language): string {
+  const date = new Date(value);
+  // A vague start ("since last week") is stored as midnight: show the date alone.
+  const dateOnly = hongKongClock.format(date) === "00:00";
   return new Intl.DateTimeFormat(language, {
     dateStyle: "medium",
-    timeStyle: "short",
+    timeStyle: dateOnly ? undefined : "short",
     timeZone: "Asia/Hong_Kong",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function update<T extends { key: string }>(items: T[], key: string, change: Partial<T>): T[] {

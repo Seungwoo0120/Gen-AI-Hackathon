@@ -43,8 +43,9 @@ moderate=3, severe=4, unbearable or worst ever=5. Otherwise null.
 - started_at: ISO 8601 with +08:00, only if the person said when it started. \
 Resolve relative times ("since yesterday") from the current time given. An \
 approximate time ("yesterday morning", "a few days ago") still counts: use the \
-start of that period and also keep the person's own words for it in details. \
-Otherwise null.
+start of that period and also add the person's words for the time to details \
+as a short phrase, e.g. "since last week" (do not write sentences about "the \
+person"). Otherwise null.
 - Medication name: exactly as the person wrote it. Dose only if stated. \
 times: HH:MM (24h) only if a clock time was stated; "in the morning" alone is \
 not a time. notes: other stated instructions such as "after meals".

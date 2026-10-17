@@ -55,3 +55,23 @@ export function toSave(
       })),
   };
 }
+
+const sameName = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
+
+/**
+ * Indexes of medicines that are already on the list (or repeated in this batch).
+ * People mention the medicines they always take; saving them again would list them twice.
+ */
+export function alreadyListed(
+  medications: readonly MedicationInput[],
+  existingNames: readonly string[],
+): Set<number> {
+  const seen = new Set(existingNames.map(sameName));
+  const repeats = new Set<number>();
+  medications.forEach((item, index) => {
+    const key = sameName(item.name);
+    if (seen.has(key)) repeats.add(index);
+    seen.add(key);
+  });
+  return repeats;
+}
